@@ -18,7 +18,7 @@ stages:
 
 .virtualenv_template: &virtualenv_definition |
   python -V
-  pip install virtualenv
+  pip install -U pip, setuptools, wheel, virtualenv
   virtualenv venv
   source venv/bin/activate
   make install-dev

@@ -18,13 +18,13 @@ clean:
 	rm -rf venv
 
 test: 
-	py.test --junitxml=./reports/junit.xml -o junit_suite_name=$(PKGNAME) tests
+	python -m pytest --junitxml=./reports/junit.xml -o junit_suite_name=$(PKGNAME) tests
 
 test-cov:
-	py.test --cov ./$(PKGNAME) --cov-report term-missing --cov-report xml:reports/coverage.xml --cov-report html:reports/coverage tests
+	python -m pytest --cov ./$(PKGNAME) --cov-report term-missing --cov-report xml:reports/coverage.xml --cov-report html:reports/coverage tests
 
 test-loop: 
-	py.test tests
+	python -m pytest tests
 	ptw --ext=.py,.pyx --ignore=doc tests
 
 black:

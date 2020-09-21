@@ -14,7 +14,10 @@ def read_requirements(filename):
         requirements = [l.strip() for l in fobj.readlines()]
     v = sys.version_info
     if (v.major, v.minor) < (3, 6):
-        requirements.pop(requirements.index("black"))
+        try:
+            requirements.pop(requirements.index("black"))
+        except ValueError:
+            pass
     return requirements
 
 

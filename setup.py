@@ -15,6 +15,7 @@ def read_requirements(filename):
     v = sys.version_info
     if (v.major, v.minor) < (3, 6):
         requirements.pop(requirements.index("black"))
+    return requirements
 
 
 try:

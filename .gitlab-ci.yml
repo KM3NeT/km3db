@@ -32,7 +32,7 @@ stages:
 
 
 test-py2.7:
-    image: docker.km3net.de/base/python:2.7
+    image: docker.km3net.de/base/python:2
     stage: test
     script:
         - *virtualenv_definition

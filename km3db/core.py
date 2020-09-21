@@ -63,10 +63,6 @@ class DBManager:
         self._login_url = os.path.join(self._db_url, 'home.htm')
         self._session_cookie = None
 
-        for host, session_cookie in SESSION_COOKIES.items():
-            if on_whitelisted_host(host):
-                self._session_cookie = session_cookie
-
     def get(self, url, default=None):
         "Get HTML content"
         target_url = self._db_url + '/' + unquote(url)
@@ -92,11 +88,11 @@ class DBManager:
     @property
     def session_cookie(self):
         if self._session_cookie is None:
-            # session_cookie = get_whitelist_cookie()
-            session_cookie = None
-            if session_cookie is None:
-                session_cookie = self._request_session_cookie()
-            self._session_cookie = session_cookie
+            for host, session_cookie in SESSION_COOKIES.items():
+                if on_whitelisted_host(host):
+                    self._session_cookie = session_cookie
+            else:
+                self._session_cookie = self._request_session_cookie()
         return self._session_cookie
 
     def _request_session_cookie(self):
@@ -132,7 +128,7 @@ class DBManager:
         cookie = cookie.split("sid=")[-1]
 
         if not _cookie_sid_pattern.match(cookie):
-            print("Wrong username or password.")
+            log.critical("Wrong username or password.")
             return None
 
         return cookie

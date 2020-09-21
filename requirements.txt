@@ -1,1 +1,2 @@
+coloredlogs
 setuptools_scm

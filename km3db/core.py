@@ -35,6 +35,12 @@ except ImportError:
     from httplib import IncompleteRead
     input = raw_input
 
+import logging
+import coloredlogs
+
+coloredlogs.installer(level="WARNING")
+
+log = logging.getLogger("km3db")
 
 # Ignore invalid certificate error
 ssl._create_default_https_context = ssl._create_unverified_context

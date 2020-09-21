@@ -46,14 +46,15 @@ except ImportError:
 ssl._create_default_https_context = ssl._create_unverified_context
 
 BASE_URL = "https://km3netdbweb.in2p3.fr"
+COOKIE_FILENAME = os.path.expanduser("~/.km3netdb_cookie")
 SESSION_COOKIES = dict(
-    lyon="sid=_kmcprod_134.158_lyo7783844001343100343mcprod1223user",
-    jupyter="sid=_jupyter-km3net_131.188.161.143_d9fe89a1568a49a5ac03bdf15d93d799",
-    gitlab="sid=_gitlab-km3net_131.188.161.155_f835d56ca6d946efb38324d59e040761",
+    lyon="_kmcprod_134.158_lyo7783844001343100343mcprod1223user",
+    jupyter="_jupyter-km3net_131.188.161.143_d9fe89a1568a49a5ac03bdf15d93d799",
+    gitlab="_gitlab-km3net_131.188.161.155_f835d56ca6d946efb38324d59e040761",
 )
 UTC_TZ = pytz.timezone("UTC")
 
-_cookie_sid_pattern = re.compile(r'sid=_[a-z0-9-]+_(\d{1,3}.){1,3}\d{1,3}_[a-z0-9]+')
+_cookie_sid_pattern = re.compile(r'_[a-z0-9-]+_(\d{1,3}.){1,3}\d{1,3}_[a-z0-9]+')
 
 
 class DBManager:
@@ -81,19 +82,32 @@ class DBManager:
         # Environment variables have the highest precedence.
         username = os.getenv("KM3NET_DB_USERNAME")
         password = os.getenv("KM3NET_DB_PASSWORD")
-        # Otherwise we ask interactively
+        # Next, try the configuration file according to
+        # the specification described here:
+        # https://wiki.km3net.de/index.php/Database#Scripting_access
+        if os.path.exists(COOKIE_FILENAME):
+            with open(COOKIE_FILENAME) as fobj:
+                content = fobj.read()
+            return content.split("\t")[-1].strip()
+
+        # Last resort: we ask interactively
         if username is None:
             username = input("Please enter your KM3NeT DB username: ")
         if password is None:
             password = getpass.getpass("Password: ")
+
         target_url = self._login_url + '?usr={0}&pwd={1}&persist=y'.format(
             username, password
         )
         cookie = urlopen(target_url).read()
+
+        # Unicode madness
         try:
             cookie = str(cookie, 'utf-8')    # Python 3
         except TypeError:
             cookie = str(cookie)             # Python 2
+
+        cookie = cookie.split("sid=")[-1]
 
         if not _cookie_sid_pattern.match(cookie):
             print("Wrong username or password.")

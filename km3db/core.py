@@ -91,6 +91,7 @@ class DBManager:
             for host, session_cookie in SESSION_COOKIES.items():
                 if on_whitelisted_host(host):
                     self._session_cookie = session_cookie
+                    break
             else:
                 self._session_cookie = self._request_session_cookie()
         return self._session_cookie

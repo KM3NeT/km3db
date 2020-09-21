@@ -50,7 +50,6 @@ SESSION_COOKIES = dict(
     lyon="sid=_kmcprod_134.158_lyo7783844001343100343mcprod1223user",
     jupyter="sid=_jupyter-km3net_131.188.161.143_d9fe89a1568a49a5ac03bdf15d93d799",
     gitlab="sid=_gitlab-km3net_131.188.161.155_f835d56ca6d946efb38324d59e040761",
-    kmcprod="sid=_kmcprod_134.158_lyo7783844001343100343mcprod1223user"
 )
 UTC_TZ = pytz.timezone("UTC")
 
@@ -122,7 +121,3 @@ def on_whitelisted_host(name):
     if name == "gitlab":
         external_ip = urlopen("https://ident.me").read().decode("utf8")
         return external_ip == "131.188.161.155"
-
-    if name == "kmcprod":
-        # checking the username should be enough
-        return os.getenv("USER", "") == name

@@ -21,11 +21,11 @@ from pkg_resources import get_distribution
 
 # -- Project information -----------------------------------------------------
 
-version = get_distribution('km3db').version
-short_version = '.'.join(version.split('.')[:2])
-project = 'km3db {}'.format(short_version)
-copyright = '{0}, Tamas Gal'.format(date.today().year)
-author = 'Tamas Gal'
+version = get_distribution("km3db").version
+short_version = ".".join(version.split(".")[:2])
+project = "km3db {}".format(short_version)
+copyright = "{0}, Tamas Gal".format(date.today().year)
+author = "Tamas Gal"
 
 # -- General configuration ---------------------------------------------------
 
@@ -33,33 +33,35 @@ author = 'Tamas Gal'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autodoc', 'sphinx.ext.autosummary', 'sphinx.ext.viewcode',
-    'autoapi.extension', 'numpydoc',
+    "sphinx.ext.autodoc",
+    "sphinx.ext.autosummary",
+    "sphinx.ext.viewcode",
+    "autoapi.extension",
+    "numpydoc",
     # 'sphinx_gallery.gen_gallery'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', 'version.py']
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "version.py"]
 
 # AutoAPI
-autoapi_type = 'python'
-autoapi_dirs = ['../km3db']
-autoapi_ignore = ['*version.py*']
+autoapi_type = "python"
+autoapi_dirs = ["../km3db"]
+autoapi_ignore = ["*version.py*"]
 autoapi_add_toctree_entry = True
 
 # Gallery
 sphinx_gallery_conf = {
-    'backreferences_dir': 'modules/generated',
-    'default_thumb_file': '_static/default_gallery_thumbnail.png',
-    'examples_dirs': '../examples',  # path to your example scripts
-    'gallery_dirs':
-    'auto_examples',  # path to where to save gallery generated output
-    'show_memory': True,
+    "backreferences_dir": "modules/generated",
+    "default_thumb_file": "_static/default_gallery_thumbnail.png",
+    "examples_dirs": "../examples",  # path to your example scripts
+    "gallery_dirs": "auto_examples",  # path to where to save gallery generated output
+    "show_memory": True,
 }
 
 # -- Options for HTML output -------------------------------------------------
@@ -67,11 +69,11 @@ sphinx_gallery_conf = {
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinx_rtd_theme'
+html_theme = "sphinx_rtd_theme"
 html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ["_static"]
 html_title = "km3db {}".format(version)

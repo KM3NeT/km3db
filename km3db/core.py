@@ -67,6 +67,28 @@ class DBManager:
             if on_whitelisted_host(host):
                 self._session_cookie = session_cookie
 
+    def get(self, url, default=None):
+        "Get HTML content"
+        target_url = self._db_url + '/' + unquote(url)
+        try:
+            f = self.opener.open(target_url)
+        except HTTPError as e:
+            log.error(
+                "HTTP error, your session may be expired.\n"
+                "Original HTTP error: {}\n"
+                "Target URL: {}".format(e, target_url)
+            )
+            return default
+        try:
+            content = f.read()
+        except IncompleteRead as icread:
+            log.error(
+                "Incomplete data received from the DB."
+            )
+            content = icread.partial
+        log.debug("Got {0} bytes of data.".format(len(content)))
+        return content.decode('utf-8')
+
     @property
     def session_cookie(self):
         if self._session_cookie is None:

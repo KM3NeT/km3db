@@ -22,8 +22,7 @@ stages:
   pip install virtualenv
   virtualenv venv
   source venv/bin/activate
-  pip install -r requirements-dev.txt
-  make install
+  make install-dev
 
 .junit_template: &junit_definition
     artifacts:
@@ -92,7 +91,6 @@ coverage:
     stage: coverage
     script:
         - *virtualenv_definition
-        - make install-dev
         - "make test-cov|grep TOTAL| awk '{printf \"COVERAGE: %.2f%%\", (1-$3/$2)*100 }'"
     coverage: '/COVERAGE:\s*([0-9]*\.[0-9]*%)/'
     #     - make test-cov

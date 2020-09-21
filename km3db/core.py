@@ -6,18 +6,12 @@ Database utilities.
 """
 from __future__ import absolute_import, print_function, division
 
-from functools import lru_cache
-from datetime import datetime
-import numbers
 import ssl
-import io
-import json
 import getpass
 import os
 import re
 import pytz
 import socket
-from collections import defaultdict, OrderedDict, namedtuple
 try:
     from inspect import Signature, Parameter
     SKIP_SIGNATURE_HINTS = False
@@ -112,6 +106,7 @@ class DBManager:
         if not _cookie_sid_pattern.match(cookie):
             print("Wrong username or password.")
             return None
+
         return cookie
 
 

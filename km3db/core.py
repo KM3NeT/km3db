@@ -38,7 +38,7 @@ except ImportError:
 import logging
 import coloredlogs
 
-coloredlogs.installer(level="WARNING")
+coloredlogs.install(level="WARNING")
 
 log = logging.getLogger("km3db")
 

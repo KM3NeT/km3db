@@ -1,8 +1,8 @@
 import unittest
 
-import km3db
+from km3db import DBManager
 
 
 class TestKM3DB(unittest.TestCase):
     def test_init(self):
-        pass
+        DBManager()

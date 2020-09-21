@@ -8,10 +8,13 @@ from setuptools import setup
 import sys
 
 
-def read_stripped_lines(filename):
+def read_requirements(filename):
     """Return a list of stripped lines from a file"""
     with open(filename) as fobj:
-        return [l.strip() for l in fobj.readlines()]
+        requirements = [l.strip() for l in fobj.readlines()]
+    v = sys.version_info
+    if (v.major, v.minor) < (3, 6):
+        requirements.pop(requirements.index("black"))
 
 
 try:
@@ -33,8 +36,8 @@ setup(
     setup_requires=["setuptools_scm"],
     use_scm_version=True,
     python_requires=">=3.5",
-    install_requires=read_stripped_lines("requirements.txt"),
-    extras_require={"dev": read_stripped_lines("requirements-dev.txt")},
+    install_requires=read_requirements("requirements.txt"),
+    extras_require={"dev": read_requirements("requirements-dev.txt")},
     classifiers=[
         "Intended Audience :: Developers",
         "Intended Audience :: Science/Research",

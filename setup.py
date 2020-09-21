@@ -39,7 +39,7 @@ setup(
     platforms="any",
     setup_requires=["setuptools_scm"],
     use_scm_version=True,
-    python_requires=">=3.5",
+    python_requires=">=2.7",
     install_requires=read_requirements("requirements.txt"),
     extras_require={"dev": read_requirements("requirements-dev.txt")},
     classifiers=[

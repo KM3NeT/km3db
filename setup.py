@@ -11,7 +11,7 @@ import sys
 
 def read_requirements(kind):
     """Return a list of stripped lines from a file"""
-    with open(os.path.join("requirements", kind + ".txt") as fobj:
+    with open(os.path.join("requirements", kind + ".txt")) as fobj:
         requirements = [l.strip() for l in fobj.readlines()]
     v = sys.version_info
     if (v.major, v.minor) < (3, 6):
@@ -41,7 +41,7 @@ setup(
     setup_requires=["setuptools_scm"],
     use_scm_version=True,
     python_requires=">=2.7",
-    install_requires=read_requirements(install),
+    install_requires=read_requirements("install"),
     extras_require={kind: read_requirements(kind) for kind in ["dev", "extras"]},
     classifiers=[
         "Intended Audience :: Developers",

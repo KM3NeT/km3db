@@ -72,6 +72,7 @@ def available_streams():
     print("Available streams: ")
     print(", ".join(sorted(sds.streams)))
 
+
 def main():
     args = docopt(__doc__)
 

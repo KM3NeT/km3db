@@ -85,7 +85,7 @@ class StreamDS:
         """Update the list of available straems"""
         content = self._db.get("streamds")
         self._streams = OrderedDict()
-        for entry in tonamedtuples("Stream", content):
+        for entry in tonamedtuples("Stream", content, sort=True):
             self._streams[entry.stream] = entry
             setattr(self, entry.stream, self.__getattr__(entry.stream))
 

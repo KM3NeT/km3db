@@ -43,6 +43,11 @@ setup(
     python_requires=">=2.7",
     install_requires=read_requirements("install"),
     extras_require={kind: read_requirements(kind) for kind in ["dev", "extras"]},
+    entry_points={
+        "console_scripts": [
+            "streamds=km3db.cli.streamds:main",
+        ],
+    },
     classifiers=[
         "Intended Audience :: Developers",
         "Intended Audience :: Science/Research",

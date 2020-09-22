@@ -1,2 +1,3 @@
 coloredlogs
+docopt
 setuptools_scm

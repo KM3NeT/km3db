@@ -2,22 +2,7 @@
 from collections import OrderedDict, namedtuple
 import numbers
 
-try:
-    from functools import lru_cache
-except ImportError:
-    from functools import wraps
-
-    def lru_cache(func):
-        cache = {}
-
-        @wraps(func)
-        def wrapper(*args):
-            key = tuple(args)
-            if key not in cache:
-                cache[key] = func(*args)
-            return cache[key]
-
-        return wrapper
+from functools import wraps
 
 
 try:
@@ -38,6 +23,20 @@ try:
 except ImportError:
     # Python 2.7
     SKIP_SIGNATURE_HINTS = True
+
+
+def lru_cache(func):
+    """Poor mans lru_cache for compatiblity"""
+    cache = {}
+
+    @wraps(func)
+    def wrapper(*args):
+        key = tuple(args)
+        if key not in cache:
+            cache[key] = func(*args)
+        return cache[key]
+
+    return wrapper
 
 
 def tonamedtuples(name, text, sort=False):

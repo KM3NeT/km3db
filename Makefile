@@ -9,6 +9,7 @@ install:
 
 install-dev:
 	pip install -e ".[dev]"
+	pip install -e ".[extras]"
 
 venv:
 	python3 -m venv venv

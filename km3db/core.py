@@ -62,10 +62,11 @@ class DBManager:
         self._db_url = BASE_URL if url is None else url
         self._login_url = os.path.join(self._db_url, 'home.htm')
         self._session_cookie = None
+        self._opener = None
 
     def get(self, url, default=None):
         "Get HTML content"
-        target_url = self._db_url + '/' + unquote(url)
+        target_url = os.path.join(self._db_url, unquote(url))
         try:
             f = self.opener.open(target_url)
         except HTTPError as e:
@@ -133,6 +134,23 @@ class DBManager:
             return None
 
         return cookie
+
+    @property
+    def opener(self):
+        "A reusable connection manager"
+        if self._opener is None:
+            log.debug("Creating connection handler")
+            opener = build_opener()
+            cookie = self.session_cookie
+            if cookie is None:
+                log.critical("Could not connect to database.")
+                return
+            opener.addheaders.append(('Cookie', "sid=" + cookie))
+            self._opener = opener
+        else:
+            log.debug("Reusing connection manager")
+        return self._opener
+
 
 
 

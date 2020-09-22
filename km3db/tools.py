@@ -3,13 +3,31 @@ from collections import OrderedDict, namedtuple
 import numbers
 
 try:
+    from functools import lru_cache
+except ImportError:
+    from functools import wraps
+
+    def lru_cache(func):
+        cache = {}
+
+        @wraps(func)
+        def wrapper(*args):
+            key = tuple(args)
+            if key not in cache:
+                cache[key] = func(*args)
+            return cache[key]
+
+        return wrapper
+
+
+try:
     from io import StringIO
 except ImportError:
     from StringIO import StringIO
 
 import km3db.core
 import km3db.extras
-import km3db.logger
+from km3db.logger import log
 
 
 try:
@@ -22,15 +40,17 @@ except ImportError:
     SKIP_SIGNATURE_HINTS = True
 
 
-def parse_streams(text):
+def tonamedtuples(name, text, sort=False):
     lines = text.split("\n")
-    cls = namedtuple("Stream", [s.lower() for s in lines.pop(0).split()])
-    streams = []
+    cls = namedtuple(name, [s.lower() for s in lines.pop(0).split()])
+    entries = []
     for line in lines:
         if not line:
             continue
-        streams.append(cls(*line.split("\t")))
-    return sorted(streams, key=lambda s: s.stream)
+        entries.append(cls(*line.split("\t")))
+    if sort:
+        return sorted(entries, key=lambda s: s.stream)
+    return entries
 
 
 def topandas(text):
@@ -39,12 +59,24 @@ def topandas(text):
 
 
 class StreamDS:
-    """Access to the streamds data stored in the KM3NeT database."""
+    """Access to the streamds data stored in the KM3NeT database.
 
-    def __init__(self, url=None):
+    Parameters
+    ==========
+    url: str (optional)
+      The URL of the database web API
+    container: str or None (optional)
+      The default containertype when returning data.
+        None (default): the data, as returned from the DB
+          "nt": `namedtuple`, can be used when no pandas is available
+          "pd": `pandas.DataFrame`, as returned in KM3Pipe v8 and below
+    """
+
+    def __init__(self, url=None, container=None):
         self._db = km3db.core.DBManager(url=url)
         self._streams = None
         self._update_streams()
+        self._default_container = container
 
     @property
     def streams(self):
@@ -54,8 +86,7 @@ class StreamDS:
         """Update the list of available straems"""
         content = self._db.get("streamds")
         self._streams = OrderedDict()
-        streams = parse_streams(content)
-        for entry in parse_streams(content):
+        for entry in tonamedtuples("Stream", content):
             self._streams[entry.stream] = entry
             setattr(self, entry.stream, self.__getattr__(entry.stream))
 
@@ -100,8 +131,19 @@ class StreamDS:
         print("  optional selectors:  {}".format(stream.optional_selectors))
         print()
 
-    def get(self, stream, fmt="txt", library="raw", **kwargs):
-        """Get the data for a given stream manually"""
+    def get(self, stream, fmt="txt", container=None, **kwargs):
+        """Retrieve the data for a given stream manually
+
+        Parameters
+        ==========
+        stream: str
+          Name of the stream (e.g. detectors)
+        fmt: str ("txt", "text", "bin")
+          Retrieved raw data format, depends on the stream type
+        container: str or None
+          The container to wrap the returned data, as specified in
+          `StreamDS`.
+        """
         sel = "".join(["&{0}={1}".format(k, v) for (k, v) in kwargs.items()])
         url = "streamds/{0}.{1}?{2}".format(stream, fmt, sel[1:])
         data = self._db.get(url)
@@ -111,8 +153,15 @@ class StreamDS:
         if data.startswith("ERROR"):
             log.error(data)
             return
-        if library == "pd":
+
+        if container is None and self._default_container is not None:
+            container = self._default_container
+
+        if container == "pd":
             return topandas(data)
+        if container == "nt":
+            return tonamedtuples(stream.capitalize(), data)
+
         return data
 
 
@@ -120,12 +169,12 @@ class CLBMap:
     par_map = {"DETOID": "det_oid", "UPI": "upi", "DOMID": "dom_id"}
 
     def __init__(self, det_oid):
-        if isinstance(det_oid, numbers.Integral):
-            db = km3db.core.DBManager()
-            # det_oid and det_id chaos in the database
-            # _det_oid = db.get_det_oid(det_oid)
-            # if _det_oid is not None:
-            #     det_oid = _det_oid
+        # if isinstance(det_oid, numbers.Integral):
+        #     db = km3db.core.DBManager()
+        #     # det_oid and det_id chaos in the database
+        #     # _det_oid = db.get_det_oid(det_oid)
+        #     # if _det_oid is not None:
+        #     #     det_oid = _det_oid
         self.det_oid = det_oid
         sds = StreamDS()
         self._data = sds.clbmap(detoid=det_oid)
@@ -187,3 +236,17 @@ class CLBMap:
 
 
 CLB = namedtuple("CLB", ["det_oid", "floor", "du", "serial_number", "upi", "dom_id"])
+
+
+@lru_cache()
+def clbupi2compassupi(clb_upi):
+    """Return Compass UPI from CLB UPI."""
+    sds = StreamDS(container="nt")
+    upis = [i.content_upi for i in sds.integration(container_upi=clb_upi)]
+    compass_upis = [upi for upi in upis if ("AHRS" in upi) or ("LSM303" in upi)]
+    if len(compass_upis) > 1:
+        log.warning(
+            "Multiple compass UPIs found for CLB UPI {}. "
+            "Using the first entry.".format(clb_upi)
+        )
+    return compass_upis[0]

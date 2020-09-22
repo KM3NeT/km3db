@@ -4,6 +4,7 @@ import unittest
 from mock import patch
 
 from km3db import StreamDS
+from km3db.tools import clbupi2compassupi
 from km3net_testdata import data_path
 
 
@@ -21,9 +22,14 @@ class TestStreamDSOnline(unittest.TestCase):
             in detectors
         )
 
-    def test_pandas_as_library(self):
-        detectors = self.sds.detectors(library="pd")
+    def test_pandas_as_container(self):
+        detectors = self.sds.detectors(container="pd")
         assert 35 >= len(detectors)
+
+    def test_namedtuple_as_container(self):
+        detectors = self.sds.detectors(container="nt")
+        assert 35 >= len(detectors)
+        assert detectors[2].oid == "D_DU2NAPO"
 
 
 class TestStreamDSOffline(unittest.TestCase):
@@ -138,3 +144,13 @@ class TestStreamDSOffline(unittest.TestCase):
 #         assert 808476701 == self.clbmap.base(1).dom_id
 #         assert 808981515 == self.clbmap.base(3).dom_id
 #         assert 808967761 == self.clbmap.base(4).dom_id
+
+
+class TestCLBUPI2CompassUPI(unittest.TestCase):
+    def test_ahrs(self):
+        assert "3.4.3.4/AHRS/1.551" == clbupi2compassupi("3.4.3.2/V2-2-1/2.551")
+        assert "3.4.3.4/AHRS/1.76" == clbupi2compassupi("3.4.3.2/V2-2-1/2.76")
+
+    def test_lsm(sefl):
+        assert "3.4.3.4/LSM303/3.1106" == clbupi2compassupi("3.4.3.2/V2-2-1/3.1013")
+        assert "3.4.3.4/LSM303/3.948" == clbupi2compassupi("3.4.3.2/V2-2-1/3.855")

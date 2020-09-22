@@ -123,6 +123,9 @@ class DBManager:
             log.critical("Wrong username or password.")
             return None
 
+        with open(COOKIE_FILENAME, "w") as fobj:
+            fobj.write(".in2p3.fr\tTRUE\t/\tTRUE\t0\tsid\t{}".format(cookie))
+
         return cookie
 
     @property

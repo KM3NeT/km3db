@@ -4,3 +4,4 @@ version = get_distribution(__name__).version
 
 
 from .core import DBManager
+from .tools import StreamDS

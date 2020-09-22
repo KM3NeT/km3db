@@ -41,7 +41,7 @@ except ImportError:
 
     input = raw_input
 
-from .logger import log
+from km3db.logger import log
 
 # Ignore invalid certificate error
 ssl._create_default_https_context = ssl._create_unverified_context

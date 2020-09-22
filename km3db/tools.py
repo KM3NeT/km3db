@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 from collections import OrderedDict, namedtuple
+import numbers
 
 try:
     from io import StringIO
 except ImportError:
     from StringIO import StringIO
 
-from .core import DBManager
-from .extras import pandas
-from .logger import log
+import km3db.core
+import km3db.extras
+import km3db.logger
 
 
 try:
@@ -34,14 +35,14 @@ def parse_streams(text):
 
 def topandas(text):
     """Create a DataFrame from database output"""
-    return pandas().read_csv(StringIO(text), sep="\t")
+    return km3db.extras.pandas().read_csv(StringIO(text), sep="\t")
 
 
 class StreamDS:
     """Access to the streamds data stored in the KM3NeT database."""
 
     def __init__(self, url=None):
-        self._db = DBManager(url=url)
+        self._db = km3db.core.DBManager(url=url)
         self._streams = None
         self._update_streams()
 
@@ -113,3 +114,76 @@ class StreamDS:
         if library == "pd":
             return topandas(data)
         return data
+
+
+class CLBMap:
+    par_map = {"DETOID": "det_oid", "UPI": "upi", "DOMID": "dom_id"}
+
+    def __init__(self, det_oid):
+        if isinstance(det_oid, numbers.Integral):
+            db = km3db.core.DBManager()
+            # det_oid and det_id chaos in the database
+            # _det_oid = db.get_det_oid(det_oid)
+            # if _det_oid is not None:
+            #     det_oid = _det_oid
+        self.det_oid = det_oid
+        sds = StreamDS()
+        self._data = sds.clbmap(detoid=det_oid)
+        self._by = {}
+
+    def __len__(self):
+        return len(self._data)
+
+    @property
+    def upis(self):
+        """A dict of CLBs with UPI as key"""
+        parameter = "UPI"
+        if parameter not in self._by:
+            self._populate(by=parameter)
+        return self._by[parameter]
+
+    @property
+    def dom_ids(self):
+        """A dict of CLBs with DOM ID as key"""
+        parameter = "DOMID"
+        if parameter not in self._by:
+            self._populate(by=parameter)
+        return self._by[parameter]
+
+    @property
+    def omkeys(self):
+        """A dict of CLBs with the OMKey tuple (DU, floor) as key"""
+        parameter = "omkey"
+        if parameter not in self._by:
+            self._by[parameter] = {}
+            for clb in self.upis.values():
+                omkey = (clb.du, clb.floor)
+                self._by[parameter][omkey] = clb
+            pass
+        return self._by[parameter]
+
+    def base(self, du):
+        """Return the base CLB for a given DU"""
+        parameter = "base"
+        if parameter not in self._by:
+            self._by[parameter] = {}
+            for clb in self.upis.values():
+                if clb.floor == 0:
+                    self._by[parameter][clb.du] = clb
+        return self._by[parameter][du]
+
+    def _populate(self, by):
+        data = {}
+        for _, row in self._data.iterrows():
+            data[row[by]] = CLB(
+                det_oid=row["DETOID"],
+                floor=row["FLOORID"],
+                du=row["DUID"],
+                serial_number=row["SERIALNUMBER"],
+                upi=row["UPI"],
+                dom_id=row["DOMID"],
+            )
+        self._by[by] = data
+
+
+CLB = namedtuple("CLB", ["det_oid", "floor", "du", "serial_number", "upi", "dom_id"])

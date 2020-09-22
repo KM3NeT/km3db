@@ -1,5 +1,7 @@
 black
+km3net_testdata
 memory_profiler
+mock
 numpydoc
 pytest
 pytest-cov

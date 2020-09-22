@@ -238,7 +238,7 @@ class CLBMap:
 CLB = namedtuple("CLB", ["det_oid", "floor", "du", "serial_number", "upi", "dom_id"])
 
 
-@lru_cache()
+@lru_cache
 def clbupi2compassupi(clb_upi):
     """Return Compass UPI from CLB UPI."""
     sds = StreamDS(container="nt")

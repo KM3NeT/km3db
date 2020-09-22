@@ -21,7 +21,7 @@ Options:
 import logging
 
 import km3db
-import docopt
+from docopt import docopt
 
 
 log = logging.getLogger("streamds")

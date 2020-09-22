@@ -13,11 +13,6 @@ import re
 import pytz
 import socket
 try:
-    from inspect import Signature, Parameter
-    SKIP_SIGNATURE_HINTS = False
-except ImportError:
-    SKIP_SIGNATURE_HINTS = True
-try:
     from urllib.parse import urlencode, unquote
     from urllib.request import (
         Request, build_opener, urlopen, HTTPCookieProcessor, HTTPHandler
@@ -35,12 +30,7 @@ except ImportError:
     from httplib import IncompleteRead
     input = raw_input
 
-import logging
-import coloredlogs
-
-coloredlogs.install(level="WARNING")
-
-log = logging.getLogger("km3db")
+from .logger import log
 
 # Ignore invalid certificate error
 ssl._create_default_https_context = ssl._create_unverified_context

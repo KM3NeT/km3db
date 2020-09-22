@@ -5,12 +5,13 @@ The km3db setup script.
 
 """
 from setuptools import setup
+import os
 import sys
 
 
-def read_requirements(filename):
+def read_requirements(kind):
     """Return a list of stripped lines from a file"""
-    with open(filename) as fobj:
+    with open(os.path.join("requirements", kind + ".txt") as fobj:
         requirements = [l.strip() for l in fobj.readlines()]
     v = sys.version_info
     if (v.major, v.minor) < (3, 6):
@@ -40,8 +41,8 @@ setup(
     setup_requires=["setuptools_scm"],
     use_scm_version=True,
     python_requires=">=2.7",
-    install_requires=read_requirements("requirements.txt"),
-    extras_require={"dev": read_requirements("requirements-dev.txt")},
+    install_requires=read_requirements(install),
+    extras_require={kind: read_requirements(kind) for kind in ["dev", "extras"]},
     classifiers=[
         "Intended Audience :: Developers",
         "Intended Audience :: Science/Research",

@@ -12,10 +12,15 @@ import os
 import re
 import pytz
 import socket
+
 try:
     from urllib.parse import urlencode, unquote
     from urllib.request import (
-        Request, build_opener, urlopen, HTTPCookieProcessor, HTTPHandler
+        Request,
+        build_opener,
+        urlopen,
+        HTTPCookieProcessor,
+        HTTPHandler,
     )
     from urllib.error import URLError, HTTPError
     from io import StringIO
@@ -23,11 +28,17 @@ try:
 except ImportError:
     from urllib import urlencode, unquote
     from urllib2 import (
-        Request, build_opener, urlopen, HTTPCookieProcessor, HTTPHandler,
-        URLError, HTTPError
+        Request,
+        build_opener,
+        urlopen,
+        HTTPCookieProcessor,
+        HTTPHandler,
+        URLError,
+        HTTPError,
     )
     from StringIO import StringIO
     from httplib import IncompleteRead
+
     input = raw_input
 
 from .logger import log
@@ -44,13 +55,13 @@ SESSION_COOKIES = dict(
 )
 UTC_TZ = pytz.timezone("UTC")
 
-_cookie_sid_pattern = re.compile(r'_[a-z0-9-]+_(\d{1,3}.){1,3}\d{1,3}_[a-z0-9]+')
+_cookie_sid_pattern = re.compile(r"_[a-z0-9-]+_(\d{1,3}.){1,3}\d{1,3}_[a-z0-9]+")
 
 
 class DBManager:
     def __init__(self, url=None):
         self._db_url = BASE_URL if url is None else url
-        self._login_url = os.path.join(self._db_url, 'home.htm')
+        self._login_url = os.path.join(self._db_url, "home.htm")
         self._session_cookie = None
         self._opener = None
 
@@ -69,12 +80,10 @@ class DBManager:
         try:
             content = f.read()
         except IncompleteRead as icread:
-            log.error(
-                "Incomplete data received from the DB."
-            )
+            log.error("Incomplete data received from the DB.")
             content = icread.partial
         log.debug("Got {0} bytes of data.".format(len(content)))
-        return content.decode('utf-8')
+        return content.decode("utf-8")
 
     @property
     def session_cookie(self):
@@ -106,16 +115,16 @@ class DBManager:
         if password is None:
             password = getpass.getpass("Password: ")
 
-        target_url = self._login_url + '?usr={0}&pwd={1}&persist=y'.format(
+        target_url = self._login_url + "?usr={0}&pwd={1}&persist=y".format(
             username, password
         )
         cookie = urlopen(target_url).read()
 
         # Unicode madness
         try:
-            cookie = str(cookie, 'utf-8')    # Python 3
+            cookie = str(cookie, "utf-8")  # Python 3
         except TypeError:
-            cookie = str(cookie)             # Python 2
+            cookie = str(cookie)  # Python 2
 
         cookie = cookie.split("sid=")[-1]
 
@@ -138,13 +147,11 @@ class DBManager:
             if cookie is None:
                 log.critical("Could not connect to database.")
                 return
-            opener.addheaders.append(('Cookie', "sid=" + cookie))
+            opener.addheaders.append(("Cookie", "sid=" + cookie))
             self._opener = opener
         else:
             log.debug("Reusing connection manager")
         return self._opener
-
-
 
 
 def on_whitelisted_host(name):

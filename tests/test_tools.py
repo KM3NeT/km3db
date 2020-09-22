@@ -4,6 +4,7 @@ import unittest
 
 from km3db import StreamDS
 
+
 class TestStreamDS(unittest.TestCase):
     def test_init(self):
         StreamDS()

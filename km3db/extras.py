@@ -10,6 +10,7 @@ def pandas():
             "install the 'pandas' package with:\n\n"
             "    pip install pandas\n\n"
             "or\n\n"
-            "    conda install pandas")
+            "    conda install pandas"
+        )
     else:
         return pandas

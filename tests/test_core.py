@@ -16,4 +16,6 @@ class TestKM3DB(unittest.TestCase):
     def test_get(self):
         db = DBManager()
         result = db.get("streamds/detectors.txt")
-        assert result.startswith("OID\tSERIALNUMBER\tLOCATIONID\tCITY\tFIRSTRUN\tLASTRUN\nD_DU1CPPM\t2\tA00070004\tMarseille")
+        assert result.startswith(
+            "OID\tSERIALNUMBER\tLOCATIONID\tCITY\tFIRSTRUN\tLASTRUN\nD_DU1CPPM\t2\tA00070004\tMarseille"
+        )

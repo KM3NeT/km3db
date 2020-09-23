@@ -88,63 +88,46 @@ class TestCLBMapOffline(unittest.TestCase):
     def setUp(self, streamds_mock):
         streamds_mock_obj = streamds_mock.return_value
         with open(data_path("db/clbmap.txt"), "r") as fobj:
-            streamds_mock_obj.clbmap.return_value = tonamedtuples("CLB", fobj.read())
+            streamds_mock_obj.get.return_value = tonamedtuples(
+                "CLB", fobj.read(), renamemap=CLBMap.renamemap
+            )
         self.clbmap = CLBMap("a")
-
-    @patch("km3db.tools.StreamDS")
-    def test_call_with_det_oid(self, streamds_mock):
-        streamds_mock_obj = streamds_mock.return_value
-        with open(data_path("db/clbmap.txt"), "r") as fobj:
-            streamds_mock_obj.clbmap.return_value = tonamedtuples("CLB", fobj.read())
-        self.clbmap = CLBMap("a")
-        streamds_mock_obj.clbmap.assert_called_with(detoid="a")
-
-    #     @patch("km3db.core.DBManager")
-    #     @patch("km3db.tools.StreamDS")
-    #     def test_call_with_det_id(self, streamds_mock, dbmanager_mock):
-    #         streamds_mock_obj = streamds_mock.return_value
-    #         dbmanager_mock_obj = dbmanager_mock.return_value
-    #         dbmanager_mock_obj.get_det_oid.return_value = "a"
-    #         with open(data_path("db/clbmap.txt"), "r") as fobj:
-    #             streamds_mock_obj.clbmap.return_value = read_csv(fobj.read())
-    #         self.clbmap = CLBMap(1)
-    #         streamds_mock_obj.clbmap.assert_called_with(detoid="a")
 
     def test_length(self):
         assert 57 == len(self.clbmap)
 
-    # def test_clb_by_upi(self):
-    #     assert 806487231 == self.clbmap.upis["3.4.3.2/V2-2-1/2.570"].dom_id
-    #     assert 808964852 == self.clbmap.upis["3.4.3.2/V2-2-1/2.100"].dom_id
-    #     assert 808982547 == self.clbmap.upis["3.4.3.2/V2-2-1/2.121"].dom_id
-    #     assert 808961480 == self.clbmap.upis["3.4.3.2/V2-2-1/2.94"].dom_id
-    #     assert 13 == self.clbmap.upis["3.4.3.2/V2-2-1/2.570"].floor
-    #     assert 3 == self.clbmap.upis["3.4.3.2/V2-2-1/2.100"].du
-    #     assert 121 == self.clbmap.upis["3.4.3.2/V2-2-1/2.121"].serial_number
-    #     assert "D_ORCA003" == self.clbmap.upis["3.4.3.2/V2-2-1/2.94"].det_oid
-    #     for upi in self.clbmap.upis.keys():
-    #         assert upi == self.clbmap.upis[upi].upi
+    def test_clb_by_upi(self):
+        print(self.clbmap.upis)
+        assert 806487231 == self.clbmap.upis["3.4.3.2/V2-2-1/2.570"].dom_id
+        assert 808964852 == self.clbmap.upis["3.4.3.2/V2-2-1/2.100"].dom_id
+        assert 808982547 == self.clbmap.upis["3.4.3.2/V2-2-1/2.121"].dom_id
+        assert 808961480 == self.clbmap.upis["3.4.3.2/V2-2-1/2.94"].dom_id
+        assert 13 == self.clbmap.upis["3.4.3.2/V2-2-1/2.570"].floor
+        assert 3 == self.clbmap.upis["3.4.3.2/V2-2-1/2.100"].du
+        assert 121 == self.clbmap.upis["3.4.3.2/V2-2-1/2.121"].serial_number
+        assert "D_ORCA003" == self.clbmap.upis["3.4.3.2/V2-2-1/2.94"].det_oid
+        for upi in self.clbmap.upis.keys():
+            assert upi == self.clbmap.upis[upi].upi
 
+    def test_clb_by_dom_id(self):
+        assert "3.4.3.2/V2-2-1/2.570" == self.clbmap.dom_ids[806487231].upi
+        assert "3.4.3.2/V2-2-1/2.100" == self.clbmap.dom_ids[808964852].upi
+        assert "3.4.3.2/V2-2-1/2.121" == self.clbmap.dom_ids[808982547].upi
+        assert "3.4.3.2/V2-2-1/2.94" == self.clbmap.dom_ids[808961480].upi
+        assert 13 == self.clbmap.dom_ids[806487231].floor
+        assert 3 == self.clbmap.dom_ids[808964852].du
+        assert 121 == self.clbmap.dom_ids[808982547].serial_number
+        assert "D_ORCA003" == self.clbmap.dom_ids[808961480].det_oid
+        for dom_id in self.clbmap.dom_ids.keys():
+            assert dom_id == self.clbmap.dom_ids[dom_id].dom_id
 
-#     def test_clb_by_dom_id(self):
-#         assert "3.4.3.2/V2-2-1/2.570" == self.clbmap.dom_ids[806487231].upi
-#         assert "3.4.3.2/V2-2-1/2.100" == self.clbmap.dom_ids[808964852].upi
-#         assert "3.4.3.2/V2-2-1/2.121" == self.clbmap.dom_ids[808982547].upi
-#         assert "3.4.3.2/V2-2-1/2.94" == self.clbmap.dom_ids[808961480].upi
-#         assert 13 == self.clbmap.dom_ids[806487231].floor
-#         assert 3 == self.clbmap.dom_ids[808964852].du
-#         assert 121 == self.clbmap.dom_ids[808982547].serial_number
-#         assert "D_ORCA003" == self.clbmap.dom_ids[808961480].det_oid
-#         for dom_id in self.clbmap.dom_ids.keys():
-#             assert dom_id == self.clbmap.dom_ids[dom_id].dom_id
-
-#     def test_get_base(self):
-#         assert 0 == self.clbmap.base(1).floor
-#         assert 0 == self.clbmap.base(3).floor
-#         assert 0 == self.clbmap.base(4).floor
-#         assert 808476701 == self.clbmap.base(1).dom_id
-#         assert 808981515 == self.clbmap.base(3).dom_id
-#         assert 808967761 == self.clbmap.base(4).dom_id
+    def test_get_base(self):
+        assert 0 == self.clbmap.base(1).floor
+        assert 0 == self.clbmap.base(3).floor
+        assert 0 == self.clbmap.base(4).floor
+        assert 808476701 == self.clbmap.base(1).dom_id
+        assert 808981515 == self.clbmap.base(3).dom_id
+        assert 808967761 == self.clbmap.base(4).dom_id
 
 
 class TestCLBUPI2CompassUPI(unittest.TestCase):

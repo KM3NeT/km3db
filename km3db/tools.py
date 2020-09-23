@@ -17,6 +17,16 @@ except ImportError:
     SKIP_SIGNATURE_HINTS = True
 
 
+def tonum(value):
+    """Convert a value to a numerical one if possible"""
+    for converter in (int, float):
+        try:
+            return converter(value)
+        except (ValueError, TypeError):
+            pass
+    return value
+
+
 def tonamedtuples(name, text, renamemap=None):
     """Creates a list of namedtuples from database output
 
@@ -38,7 +48,7 @@ def tonamedtuples(name, text, renamemap=None):
     for line in lines:
         if not line:
             continue
-        entries.append(cls(*line.split("\t")))
+        entries.append(cls(*map(tonum, line.split("\t"))))
     return entries
 
 
@@ -120,7 +130,7 @@ class StreamDS:
         print("  optional selectors:  {}".format(stream.optional_selectors))
         print()
 
-    def get(self, stream, fmt="txt", container=None, **kwargs):
+    def get(self, stream, fmt="txt", container=None, renamemap=None, **kwargs):
         """Retrieve the data for a given stream manually
 
         Parameters
@@ -149,13 +159,20 @@ class StreamDS:
         if container == "pd":
             return topandas(data)
         if container == "nt":
-            return tonamedtuples(stream.capitalize(), data)
+            return tonamedtuples(stream.capitalize(), data, renamemap=renamemap)
 
         return data
 
 
 class CLBMap:
-    par_map = {"detoid": "det_oid", "upi": "upi", "domid": "dom_id"}
+    renamemap = dict(
+        DETOID="det_oid",
+        UPI="upi",
+        DOMID="dom_id",
+        DUID="du",
+        SERIALNUMBER="serial_number",
+        FLOORID="floor",
+    )
 
     def __init__(self, det_oid):
         # if isinstance(det_oid, numbers.Integral):
@@ -166,7 +183,7 @@ class CLBMap:
         #     #     det_oid = _det_oid
         self.det_oid = det_oid
         sds = StreamDS(container="nt")
-        self._data = sds.clbmap(detoid=det_oid)
+        self._data = sds.get("clbmap", detoid=det_oid, renamemap=self.renamemap)
         self._by = {}
 
     def __len__(self):
@@ -183,7 +200,7 @@ class CLBMap:
     @property
     def dom_ids(self):
         """A dict of CLBs with DOM ID as key"""
-        parameter = "domid"
+        parameter = "dom_id"
         if parameter not in self._by:
             self._populate(by=parameter)
         return self._by[parameter]
@@ -205,7 +222,7 @@ class CLBMap:
         parameter = "base"
         if parameter not in self._by:
             self._by[parameter] = {}
-            for clb in self.upis.values():
+            for clb in self._data:
                 if clb.floor == 0:
                     self._by[parameter][clb.du] = clb
         return self._by[parameter][du]

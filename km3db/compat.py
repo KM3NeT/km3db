@@ -17,6 +17,7 @@ try:
     from urllib.error import URLError, HTTPError
     from io import StringIO
     from http.client import IncompleteRead
+
     user_input = input
 except ImportError:
     from urllib import urlencode, unquote

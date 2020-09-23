@@ -99,17 +99,16 @@ class TestCLBMapOffline(unittest.TestCase):
         self.clbmap = CLBMap("a")
         streamds_mock_obj.clbmap.assert_called_with(detoid="a")
 
-#     @patch("km3db.core.DBManager")
-#     @patch("km3db.tools.StreamDS")
-#     def test_call_with_det_id(self, streamds_mock, dbmanager_mock):
-#         streamds_mock_obj = streamds_mock.return_value
-#         dbmanager_mock_obj = dbmanager_mock.return_value
-#         dbmanager_mock_obj.get_det_oid.return_value = "a"
-#         with open(data_path("db/clbmap.txt"), "r") as fobj:
-#             streamds_mock_obj.clbmap.return_value = read_csv(fobj.read())
-#         self.clbmap = CLBMap(1)
-#         streamds_mock_obj.clbmap.assert_called_with(detoid="a")
-
+    #     @patch("km3db.core.DBManager")
+    #     @patch("km3db.tools.StreamDS")
+    #     def test_call_with_det_id(self, streamds_mock, dbmanager_mock):
+    #         streamds_mock_obj = streamds_mock.return_value
+    #         dbmanager_mock_obj = dbmanager_mock.return_value
+    #         dbmanager_mock_obj.get_det_oid.return_value = "a"
+    #         with open(data_path("db/clbmap.txt"), "r") as fobj:
+    #             streamds_mock_obj.clbmap.return_value = read_csv(fobj.read())
+    #         self.clbmap = CLBMap(1)
+    #         streamds_mock_obj.clbmap.assert_called_with(detoid="a")
 
     def test_length(self):
         assert 57 == len(self.clbmap)
@@ -125,6 +124,7 @@ class TestCLBMapOffline(unittest.TestCase):
     #     assert "D_ORCA003" == self.clbmap.upis["3.4.3.2/V2-2-1/2.94"].det_oid
     #     for upi in self.clbmap.upis.keys():
     #         assert upi == self.clbmap.upis[upi].upi
+
 
 #     def test_clb_by_dom_id(self):
 #         assert "3.4.3.2/V2-2-1/2.570" == self.clbmap.dom_ids[806487231].upi

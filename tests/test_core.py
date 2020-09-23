@@ -3,6 +3,7 @@ import mock
 
 from km3db import DBManager
 from km3db.core import on_whitelisted_host, SESSION_COOKIES
+import km3db.compat
 
 
 class TestKM3DB(unittest.TestCase):
@@ -23,7 +24,7 @@ class TestKM3DB(unittest.TestCase):
 
     @mock.patch("os.path.exists")
     @mock.patch("os.getenv")
-    @mock.patch("km3db.core.urlopen")
+    @mock.patch("km3db.compat.urlopen")
     def test_request_session_cookie_from_env(
         self, urlopen_mock, getenv_mock, exists_mock
     ):

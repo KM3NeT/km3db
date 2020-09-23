@@ -13,35 +13,8 @@ import re
 import pytz
 import socket
 
-try:
-    from urllib.parse import urlencode, unquote
-    from urllib.request import (
-        Request,
-        build_opener,
-        urlopen,
-        HTTPCookieProcessor,
-        HTTPHandler,
-    )
-    from urllib.error import URLError, HTTPError
-    from io import StringIO
-    from http.client import IncompleteRead
-except ImportError:
-    from urllib import urlencode, unquote
-    from urllib2 import (
-        Request,
-        build_opener,
-        urlopen,
-        HTTPCookieProcessor,
-        HTTPHandler,
-        URLError,
-        HTTPError,
-    )
-    from StringIO import StringIO
-    from httplib import IncompleteRead
-
-    input = raw_input
-
 from km3db.logger import log
+import km3db.compat
 
 # Ignore invalid certificate error
 ssl._create_default_https_context = ssl._create_unverified_context
@@ -67,10 +40,10 @@ class DBManager:
 
     def get(self, url, default=None):
         "Get HTML content"
-        target_url = os.path.join(self._db_url, unquote(url))
+        target_url = os.path.join(self._db_url, km3db.compat.unquote(url))
         try:
             f = self.opener.open(target_url)
-        except HTTPError as e:
+        except km3db.compat.HTTPError as e:
             log.error(
                 "HTTP error, your session may be expired.\n"
                 "Original HTTP error: {}\n"
@@ -79,7 +52,7 @@ class DBManager:
             return default
         try:
             content = f.read()
-        except IncompleteRead as icread:
+        except km3db.compat.IncompleteRead as icread:
             log.error("Incomplete data received from the DB.")
             content = icread.partial
         log.debug("Got {0} bytes of data.".format(len(content)))
@@ -111,14 +84,14 @@ class DBManager:
 
         # Last resort: we ask interactively
         if username is None:
-            username = input("Please enter your KM3NeT DB username: ")
+            username = km3db.compat.user_input("Please enter your KM3NeT DB username: ")
         if password is None:
             password = getpass.getpass("Password: ")
 
         target_url = self._login_url + "?usr={0}&pwd={1}&persist=y".format(
             username, password
         )
-        cookie = urlopen(target_url).read()
+        cookie = km3db.compat.urlopen(target_url).read()
 
         # Unicode madness
         try:
@@ -142,7 +115,7 @@ class DBManager:
         "A reusable connection manager"
         if self._opener is None:
             log.debug("Creating connection handler")
-            opener = build_opener()
+            opener = km3db.compat.build_opener()
             cookie = self.session_cookie
             if cookie is None:
                 log.critical("Could not connect to database.")
@@ -171,5 +144,5 @@ def on_whitelisted_host(name):
             return False
         return ip == socket.gethostbyname("jupyter.km3net.de")
     if name == "gitlab":
-        external_ip = urlopen("https://ident.me").read().decode("utf8")
+        external_ip = km3db.compat.urlopen("https://ident.me").read().decode("utf8")
         return external_ip == "131.188.161.155"

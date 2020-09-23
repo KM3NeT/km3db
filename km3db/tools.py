@@ -1,15 +1,7 @@
 #!/usr/bin/env python3
 from collections import OrderedDict, namedtuple
-import numbers
 
-from functools import wraps
-
-
-try:
-    from io import StringIO
-except ImportError:
-    from StringIO import StringIO
-
+import km3db.compat
 import km3db.core
 import km3db.extras
 from km3db.logger import log
@@ -23,20 +15,6 @@ try:
 except ImportError:
     # Python 2.7
     SKIP_SIGNATURE_HINTS = True
-
-
-def lru_cache(func):
-    """Poor mans lru_cache for compatiblity"""
-    cache = {}
-
-    @wraps(func)
-    def wrapper(*args):
-        key = tuple(args)
-        if key not in cache:
-            cache[key] = func(*args)
-        return cache[key]
-
-    return wrapper
 
 
 def tonamedtuples(name, text, sort=False):
@@ -54,7 +32,7 @@ def tonamedtuples(name, text, sort=False):
 
 def topandas(text):
     """Create a DataFrame from database output"""
-    return km3db.extras.pandas().read_csv(StringIO(text), sep="\t")
+    return km3db.extras.pandas().read_csv(km3db.compat.StringIO(text), sep="\t")
 
 
 class StreamDS:
@@ -237,7 +215,7 @@ class CLBMap:
 CLB = namedtuple("CLB", ["det_oid", "floor", "du", "serial_number", "upi", "dom_id"])
 
 
-@lru_cache
+@km3db.compat.lru_cache
 def clbupi2compassupi(clb_upi):
     """Return Compass UPI from CLB UPI."""
     sds = StreamDS(container="nt")

@@ -17,46 +17,6 @@ except ImportError:
     SKIP_SIGNATURE_HINTS = True
 
 
-def tonum(value):
-    """Convert a value to a numerical one if possible"""
-    for converter in (int, float):
-        try:
-            return converter(value)
-        except (ValueError, TypeError):
-            pass
-    return value
-
-
-def tonamedtuples(name, text, renamemap=None):
-    """Creates a list of namedtuples from database output
-
-    Parameters
-    ----------
-    name: str
-      Name of the namedtuple
-    text: str
-      Raw output from the database (tab separated values
-      and the first line being the header)
-    renamemap: dict(str: str) or None (default)
-      Rename the fields according to this map.
-    """
-    if renamemap is None:
-        renamemap = {}
-    lines = text.split("\n")
-    cls = namedtuple(name, [renamemap.get(s, s.lower()) for s in lines.pop(0).split()])
-    entries = []
-    for line in lines:
-        if not line:
-            continue
-        entries.append(cls(*map(tonum, line.split("\t"))))
-    return entries
-
-
-def topandas(text):
-    """Create a DataFrame from database output"""
-    return km3db.extras.pandas().read_csv(km3db.compat.StringIO(text), sep="\t")
-
-
 class StreamDS:
     """Access to the streamds data stored in the KM3NeT database.
 
@@ -246,3 +206,43 @@ def clbupi2compassupi(clb_upi):
             "Using the first entry.".format(clb_upi)
         )
     return compass_upis[0]
+
+
+def tonum(value):
+    """Convert a value to a numerical one if possible"""
+    for converter in (int, float):
+        try:
+            return converter(value)
+        except (ValueError, TypeError):
+            pass
+    return value
+
+
+def tonamedtuples(name, text, renamemap=None):
+    """Creates a list of namedtuples from database output
+
+    Parameters
+    ----------
+    name: str
+      Name of the namedtuple
+    text: str
+      Raw output from the database (tab separated values
+      and the first line being the header)
+    renamemap: dict(str: str) or None (default)
+      Rename the fields according to this map.
+    """
+    if renamemap is None:
+        renamemap = {}
+    lines = text.split("\n")
+    cls = namedtuple(name, [renamemap.get(s, s.lower()) for s in lines.pop(0).split()])
+    entries = []
+    for line in lines:
+        if not line:
+            continue
+        entries.append(cls(*map(tonum, line.split("\t"))))
+    return entries
+
+
+def topandas(text):
+    """Create a DataFrame from database output"""
+    return km3db.extras.pandas().read_csv(km3db.compat.StringIO(text), sep="\t")

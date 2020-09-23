@@ -1,5 +1,5 @@
 black
-km3net_testdata>=0.2.6
+km3net_testdata>=0.2.7
 memory_profiler
 mock
 numpydoc

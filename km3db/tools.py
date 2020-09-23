@@ -17,16 +17,28 @@ except ImportError:
     SKIP_SIGNATURE_HINTS = True
 
 
-def tonamedtuples(name, text, sort=False):
+def tonamedtuples(name, text, renamemap=None):
+    """Creates a list of namedtuples from database output
+
+    Parameters
+    ----------
+    name: str
+      Name of the namedtuple
+    text: str
+      Raw output from the database (tab separated values
+      and the first line being the header)
+    renamemap: dict(str: str) or None (default)
+      Rename the fields according to this map.
+    """
+    if renamemap is None:
+        renamemap = {}
     lines = text.split("\n")
-    cls = namedtuple(name, [s.lower() for s in lines.pop(0).split()])
+    cls = namedtuple(name, [renamemap.get(s, s.lower()) for s in lines.pop(0).split()])
     entries = []
     for line in lines:
         if not line:
             continue
         entries.append(cls(*line.split("\t")))
-    if sort:
-        return sorted(entries, key=lambda s: s.stream)
     return entries
 
 
@@ -63,7 +75,7 @@ class StreamDS:
         """Update the list of available straems"""
         content = self._db.get("streamds")
         self._streams = OrderedDict()
-        for entry in tonamedtuples("Stream", content, sort=True):
+        for entry in tonamedtuples("Stream", content):
             self._streams[entry.stream] = entry
             setattr(self, entry.stream, self.__getattr__(entry.stream))
 

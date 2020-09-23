@@ -143,7 +143,7 @@ class StreamDS:
 
 
 class CLBMap:
-    par_map = {"DETOID": "det_oid", "UPI": "upi", "DOMID": "dom_id"}
+    par_map = {"detoid": "det_oid", "upi": "upi", "domid": "dom_id"}
 
     def __init__(self, det_oid):
         # if isinstance(det_oid, numbers.Integral):
@@ -153,7 +153,7 @@ class CLBMap:
         #     # if _det_oid is not None:
         #     #     det_oid = _det_oid
         self.det_oid = det_oid
-        sds = StreamDS()
+        sds = StreamDS(container="nt")
         self._data = sds.clbmap(detoid=det_oid)
         self._by = {}
 
@@ -163,7 +163,7 @@ class CLBMap:
     @property
     def upis(self):
         """A dict of CLBs with UPI as key"""
-        parameter = "UPI"
+        parameter = "upi"
         if parameter not in self._by:
             self._populate(by=parameter)
         return self._by[parameter]
@@ -171,7 +171,7 @@ class CLBMap:
     @property
     def dom_ids(self):
         """A dict of CLBs with DOM ID as key"""
-        parameter = "DOMID"
+        parameter = "domid"
         if parameter not in self._by:
             self._populate(by=parameter)
         return self._by[parameter]
@@ -200,19 +200,9 @@ class CLBMap:
 
     def _populate(self, by):
         data = {}
-        for _, row in self._data.iterrows():
-            data[row[by]] = CLB(
-                det_oid=row["DETOID"],
-                floor=row["FLOORID"],
-                du=row["DUID"],
-                serial_number=row["SERIALNUMBER"],
-                upi=row["UPI"],
-                dom_id=row["DOMID"],
-            )
+        for clb in self._data:
+            data[getattr(clb, by)] = clb
         self._by[by] = data
-
-
-CLB = namedtuple("CLB", ["det_oid", "floor", "du", "serial_number", "upi", "dom_id"])
 
 
 @km3db.compat.lru_cache

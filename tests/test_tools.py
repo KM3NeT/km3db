@@ -3,8 +3,8 @@
 import unittest
 from mock import patch
 
-from km3db import StreamDS
-from km3db.tools import clbupi2compassupi
+from km3db import StreamDS, CLBMap
+from km3db.tools import clbupi2compassupi, tonamedtuples
 from km3net_testdata import data_path
 
 
@@ -83,14 +83,21 @@ class TestStreamDSOffline(unittest.TestCase):
         self.sds.print_streams()
 
 
-# class TestCLBMapOffline(TestCase):
-#     @patch("km3db.tools.StreamDS")
-#     def test_call_with_det_oid(self, streamds_mock):
-#         streamds_mock_obj = streamds_mock.return_value
-#         with open(data_path("db/clbmap.txt"), "r") as fobj:
-#             streamds_mock_obj.clbmap.return_value = read_csv(fobj.read())
-#         self.clbmap = CLBMap("a")
-#         streamds_mock_obj.clbmap.assert_called_with(detoid="a")
+class TestCLBMapOffline(unittest.TestCase):
+    @patch("km3db.tools.StreamDS")
+    def setUp(self, streamds_mock):
+        streamds_mock_obj = streamds_mock.return_value
+        with open(data_path("db/clbmap.txt"), "r") as fobj:
+            streamds_mock_obj.clbmap.return_value = tonamedtuples("CLB", fobj.read())
+        self.clbmap = CLBMap("a")
+
+    @patch("km3db.tools.StreamDS")
+    def test_call_with_det_oid(self, streamds_mock):
+        streamds_mock_obj = streamds_mock.return_value
+        with open(data_path("db/clbmap.txt"), "r") as fobj:
+            streamds_mock_obj.clbmap.return_value = tonamedtuples("CLB", fobj.read())
+        self.clbmap = CLBMap("a")
+        streamds_mock_obj.clbmap.assert_called_with(detoid="a")
 
 #     @patch("km3db.core.DBManager")
 #     @patch("km3db.tools.StreamDS")
@@ -103,27 +110,21 @@ class TestStreamDSOffline(unittest.TestCase):
 #         self.clbmap = CLBMap(1)
 #         streamds_mock_obj.clbmap.assert_called_with(detoid="a")
 
-#     @patch("km3db.tools.StreamDS")
-#     def setUp(self, streamds_mock):
-#         streamds_mock_obj = streamds_mock.return_value
-#         with open(data_path("db/clbmap.txt"), "r") as fobj:
-#             streamds_mock_obj.clbmap.return_value = read_csv(fobj.read())
-#         self.clbmap = CLBMap("a")
 
-#     def test_length(self):
-#         assert 57 == len(self.clbmap)
+    def test_length(self):
+        assert 57 == len(self.clbmap)
 
-#     def test_clb_by_upi(self):
-#         assert 806487231 == self.clbmap.upis["3.4.3.2/V2-2-1/2.570"].dom_id
-#         assert 808964852 == self.clbmap.upis["3.4.3.2/V2-2-1/2.100"].dom_id
-#         assert 808982547 == self.clbmap.upis["3.4.3.2/V2-2-1/2.121"].dom_id
-#         assert 808961480 == self.clbmap.upis["3.4.3.2/V2-2-1/2.94"].dom_id
-#         assert 13 == self.clbmap.upis["3.4.3.2/V2-2-1/2.570"].floor
-#         assert 3 == self.clbmap.upis["3.4.3.2/V2-2-1/2.100"].du
-#         assert 121 == self.clbmap.upis["3.4.3.2/V2-2-1/2.121"].serial_number
-#         assert "D_ORCA003" == self.clbmap.upis["3.4.3.2/V2-2-1/2.94"].det_oid
-#         for upi in self.clbmap.upis.keys():
-#             assert upi == self.clbmap.upis[upi].upi
+    # def test_clb_by_upi(self):
+    #     assert 806487231 == self.clbmap.upis["3.4.3.2/V2-2-1/2.570"].dom_id
+    #     assert 808964852 == self.clbmap.upis["3.4.3.2/V2-2-1/2.100"].dom_id
+    #     assert 808982547 == self.clbmap.upis["3.4.3.2/V2-2-1/2.121"].dom_id
+    #     assert 808961480 == self.clbmap.upis["3.4.3.2/V2-2-1/2.94"].dom_id
+    #     assert 13 == self.clbmap.upis["3.4.3.2/V2-2-1/2.570"].floor
+    #     assert 3 == self.clbmap.upis["3.4.3.2/V2-2-1/2.100"].du
+    #     assert 121 == self.clbmap.upis["3.4.3.2/V2-2-1/2.121"].serial_number
+    #     assert "D_ORCA003" == self.clbmap.upis["3.4.3.2/V2-2-1/2.94"].det_oid
+    #     for upi in self.clbmap.upis.keys():
+    #         assert upi == self.clbmap.upis[upi].upi
 
 #     def test_clb_by_dom_id(self):
 #         assert "3.4.3.2/V2-2-1/2.570" == self.clbmap.dom_ids[806487231].upi

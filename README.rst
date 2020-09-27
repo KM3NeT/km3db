@@ -135,5 +135,9 @@ debugging tool::
       URL         The URL, starting from the database website's root.
       -h --help   Show this screen.
 
+  Example:
+
+      km3db "streamds/runs.txt?detid=D_ARCA003"
+
 The URL parameter is simply the string which comes right after
 ``https://km3netdbweb.in2p3.fr/``.

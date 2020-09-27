@@ -51,7 +51,7 @@ stored in the above mentioned file for future authentications.
 ~~~~~~~~~~~~
 The ``StreamDS`` class is specifically designed to access the Stream Data Service
 entrypoint of the database, which is meant to provide large datasets, potentially
-exceeding multiples of GB.
+exceeding multiples of GB::
 
   >>> import km3db
   >>> sds = km3db.StreamDS()

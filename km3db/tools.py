@@ -246,3 +246,32 @@ def tonamedtuples(name, text, renamemap=None):
 def topandas(text):
     """Create a DataFrame from database output"""
     return km3db.extras.pandas().read_csv(km3db.compat.StringIO(text), sep="\t")
+
+
+def show_compass_calibration(clb_upi, version="3"):
+    """Show compass calibration data for given `clb_upi`."""
+    db = km3db.core.DBManager()
+    compass_upi = clbupi2compassupi(clb_upi)
+    compass_model = compass_upi.split("/")[1]
+    print("Compass UPI: {}".format(compass_upi))
+    print("Compass model: {}".format(compass_model))
+    content = db.get(
+        "show_product_test.htm?upi={}&"
+        "testtype={}-CALIBRATION-v{}&n=1&out=xml".format(
+            compass_upi, compass_model, version
+        )
+    ).replace("\n", "")
+
+    import xml.etree.ElementTree as ET
+
+    try:
+        root = ET.parse(km3db.compat.StringIO(content)).getroot()
+    except ET.ParseError:
+        print("No calibration data found")
+    else:
+        for child in root:
+            print("{}: {}".format(child.tag, child.text))
+        names = [c.text for c in root.findall(".//Name")]
+        values = [[i.text for i in c] for c in root.findall(".//Values")]
+        for name, value in zip(names, values):
+            print("{}: {}".format(name, value))

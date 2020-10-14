@@ -4,7 +4,7 @@ import unittest
 from mock import patch
 
 from km3db import StreamDS, CLBMap
-from km3db.tools import clbupi2compassupi, tonamedtuples
+from km3db.tools import clbupi2compassupi, tonamedtuples, show_compass_calibration
 from km3net_testdata import data_path
 
 
@@ -138,3 +138,8 @@ class TestCLBUPI2CompassUPI(unittest.TestCase):
     def test_lsm(sefl):
         assert "3.4.3.4/LSM303/3.1106" == clbupi2compassupi("3.4.3.2/V2-2-1/3.1013")
         assert "3.4.3.4/LSM303/3.948" == clbupi2compassupi("3.4.3.2/V2-2-1/3.855")
+
+
+class TestShowCompassCalibration(unittest.TestCase):
+    def test_function(self):
+        show_compass_calibration("3.4.3.2/V2-2-1/2.551")

@@ -19,6 +19,7 @@ Example:
 import km3db
 from docopt import docopt
 
+
 def main():
     args = docopt(__doc__, version=km3db.version)
     db = km3db.DBManager()

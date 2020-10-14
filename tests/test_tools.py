@@ -24,11 +24,11 @@ class TestStreamDSOnline(unittest.TestCase):
 
     def test_pandas_as_container(self):
         detectors = self.sds.detectors(container="pd")
-        assert 35 >= len(detectors)
+        assert 35 <= len(detectors)
 
     def test_namedtuple_as_container(self):
         detectors = self.sds.detectors(container="nt")
-        assert 35 >= len(detectors)
+        assert 35 <= len(detectors)
         assert detectors[2].oid == "D_DU2NAPO"
 
 

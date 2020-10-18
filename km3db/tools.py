@@ -310,3 +310,62 @@ def show_compass_calibration(clb_upi, version="3"):
         values = [[i.text for i in c] for c in root.findall(".//Values")]
         for name, value in zip(names, values):
             print("{}: {}".format(name, value))
+
+
+def detx(det_id, t0set=None, calibration=None):
+    """Retrieve the detector file for given detector ID"""
+    url = "detx/{0}?".format(det_id)  # '?' for easy concat below
+
+    if t0set is not None:
+        url += "&t0set=" + str(t0set)
+    if calibration is not None:
+        url += "&calibrid=" + str(calibration)
+
+    detx_content = km3db.core.DBManager().get(url)
+
+    return detx_content
+
+
+def detx_for_run(det_id, run):
+    """Retrieve the calibrate detector file for given run"""
+    run_table = StreamDS(container="nt").get("runs", detid=det_id)
+    if run_table is None:
+        log.error("No run table found for detector ID {}".format(det_id))
+        return None
+
+    for run_info in run_table:
+        if run_info.run == run:
+            break
+    else:
+        log.error("Run {} not found for detector {}".format(run, det_id))
+        return None
+
+    tcal = run_info.t0_calibsetid
+    if str(tcal) == "nan":
+        log.warning(
+            "No time calibration found for run {} (detector {})".format(run, det_id)
+        )
+        tcal = 0
+
+    try:
+        pcal = int(run_info.pos_calibsetid)
+    except ValueError:
+        log.warning(
+            "No position calibration found for run {} (detector {})".format(run, det_id)
+        )
+        pcal = 0
+
+    try:
+        rcal = int(run_info.rot_calibsetid)
+    except ValueError:
+        log.warning(
+            "No rotation calibration found for run {} (detector {})".format(run, det_id)
+        )
+        rcal = 0
+
+    url = "detx/{det_id}?tcal={tcal}&pcal={pcal}&rcal={rcal}".format(
+        det_id=det_id, tcal=tcal, pcal=pcal, rcal=rcal
+    )
+
+    detx = km3db.core.DBManager().get(url)
+    return detx

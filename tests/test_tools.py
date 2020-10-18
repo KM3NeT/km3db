@@ -4,7 +4,13 @@ import unittest
 from mock import patch
 
 from km3db import StreamDS, CLBMap
-from km3db.tools import clbupi2compassupi, tonamedtuples, show_compass_calibration
+from km3db.tools import (
+    clbupi2compassupi,
+    tonamedtuples,
+    show_compass_calibration,
+    detx,
+    detx_for_run,
+)
 from km3net_testdata import data_path
 
 
@@ -143,3 +149,23 @@ class TestCLBUPI2CompassUPI(unittest.TestCase):
 class TestShowCompassCalibration(unittest.TestCase):
     def test_function(self):
         show_compass_calibration("3.4.3.2/V2-2-1/2.551")
+
+
+class TestDetxHelpersOnline(unittest.TestCase):
+    def test_detx(self):
+        det_id = 49
+        detx_string = detx(49)
+        assert detx_string is not None
+        split_lines = detx_string.split("\n")
+        assert str(det_id) in split_lines[0]
+        assert 3461 == len(split_lines)
+        assert float(split_lines[6].split()[-1]) == 0.0  # t0 is not set
+
+    def test_detx_for_run(self):
+        det_id = 49
+        detx_string = detx_for_run(49, 8220)
+        assert detx_string is not None
+        split_lines = detx_string.split("\n")
+        assert str(det_id) in split_lines[0]
+        assert 3461 == len(split_lines)
+        assert float(split_lines[6].split()[-1]) != 0.0  # check a single PMT t0

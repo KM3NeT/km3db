@@ -28,6 +28,9 @@ test-loop:
 	python -m pytest tests
 	ptw --ext=.py,.pyx --ignore=doc tests
 
+benchmark:
+	scripts/run_benchmarks.py benchmarks
+
 black:
 	black $(PKGNAME)
 	black doc/conf.py
@@ -35,4 +38,4 @@ black:
 	black examples
 	black setup.py
 
-.PHONY: all clean install install-dev venv test test-cov test-loop yapf
+.PHONY: all clean install install-dev venv test test-cov test-loop benchmark black

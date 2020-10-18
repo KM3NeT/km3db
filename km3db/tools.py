@@ -124,6 +124,33 @@ class StreamDS:
         return data
 
 
+class JSONDS:
+    """Access to the jsonds data stored in the KM3NeT database.
+
+    Parameters
+    ==========
+    url: str (optional)
+      The URL of the database web API
+
+    """
+    def __init__(self, url=None):
+        self._db = km3db.core.DBManager(url=url)
+
+    def get(self, url):
+        "Get JSON-type content from the url"
+        content = self._db.get("jsonds/" + url)
+        try:
+            json_content = json.loads(content.decode())
+        except AttributeError:
+            json_content = json.loads(content)
+        if json_content.get("Comment") is not None:
+            self.log.warning(json_content["Comment"])
+        if json_content["Result"] != "OK":
+            self.log.critical("Error from DB: %s", json_content.get("Data"))
+            raise ValueError("Error while retrieving the parameter list.")
+        return json_content["Data"]
+
+
 class CLBMap:
     renamemap = dict(
         DETOID="det_oid",

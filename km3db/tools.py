@@ -117,12 +117,16 @@ class StreamDS:
         if container is None and self._default_container is not None:
             container = self._default_container
 
-        if container == "pd":
-            return topandas(data)
-        if container == "nt":
-            return tonamedtuples(stream.capitalize(), data, renamemap=renamemap)
-
-        return data
+        try:
+            if container == "pd":
+                return topandas(data)
+            if container == "nt":
+                return tonamedtuples(stream.capitalize(), data, renamemap=renamemap)
+        except ValueError:
+            log.critical("Unable to convert data to container type '{}'. "
+                         "Database response: {}".format(container, data))
+        else:
+            return data
 
 
 class JSONDS:

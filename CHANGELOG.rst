@@ -5,6 +5,10 @@ Unreleased changes
 Version 0
 ---------
 
+0.4.0 / 2020-10-19
+~~~~~~~~~~~~~~~~~~
+* ``detx`` command line utility has been added
+
 0.4.0 / 2020-10-18
 ~~~~~~~~~~~~~~~~~~
 * ``tools.detx`` and ``tools.detx_for_run`` added
@@ -13,6 +17,8 @@ Version 0
 0.3.0 / 2020-09-23
 ~~~~~~~~~~~~~~~~~~
 * ``tools.StreamDS`` added
+* the  ``streamds`` command line utility has been added
+* the ``km3db`` command line utility has been added
 
 0.2.0 / 2020-09-22
 ~~~~~~~~~~~~~~~~~~

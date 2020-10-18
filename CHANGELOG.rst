@@ -1,11 +1,13 @@
 Unreleased changes
 ------------------
 
-* Helpers to convert det ID to OID and vice versa:
-  ``tools.todetid`` and ``tools.todetoid``
-
 Version 0
 ---------
+
+0.4.2 / 2020-10-19
+~~~~~~~~~~~~~~~~~~
+* Helpers to convert det ID to OID and vice versa:
+  ``tools.todetid`` and ``tools.todetoid``
 
 0.4.1 / 2020-10-19
 ~~~~~~~~~~~~~~~~~~

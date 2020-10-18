@@ -1,6 +1,8 @@
 Unreleased changes
 ------------------
 
+* Helpers to convert det ID to OID and vice versa:
+  ``tools.todetid`` and ``tools.todetoid``
 
 Version 0
 ---------

@@ -243,6 +243,36 @@ def clbupi2compassupi(clb_upi):
     return compass_upis[0]
 
 
+@km3db.compat.lru_cache
+def todetoid(det_id):
+    """Convert det OID (e.g. D_ORCA006) to det ID (e.g. 49)
+
+    If a det OID is provided it will simple be returned.
+    """
+    if isinstance(det_id, str):
+        return det_id
+    detectors = StreamDS(container="nt").get("detectors")
+    for detector in detectors:
+        if detector.serialnumber == det_id:
+            return detector.oid
+    log.error("Could not convert det ID '{}' to OID".format(det_id))
+
+
+@km3db.compat.lru_cache
+def todetid(det_oid):
+    """Convert det ID (e.g. 49) to det OID (e.g. D_ORCA006)
+
+    If a det OID is provided it will simple be returned.
+    """
+    if isinstance(det_oid, int):
+        return det_oid
+    detectors = StreamDS(container="nt").get("detectors")
+    for detector in detectors:
+        if detector.oid == det_oid:
+            return detector.serialnumber
+    log.error("Could not convert det OID '{}' to ID".format(det_oid))
+
+
 def tonum(value):
     """Convert a value to a numerical one if possible"""
     for converter in (int, float):

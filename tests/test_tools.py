@@ -10,6 +10,8 @@ from km3db.tools import (
     show_compass_calibration,
     detx,
     detx_for_run,
+    todetid,
+    todetoid,
 )
 from km3net_testdata import data_path
 
@@ -169,3 +171,11 @@ class TestDetxHelpersOnline(unittest.TestCase):
         assert str(det_id) in split_lines[0]
         assert 3461 == len(split_lines)
         assert float(split_lines[6].split()[-1]) != 0.0  # check a single PMT t0
+
+
+class TestDetIDandOIDConversionsOnline(unittest.TestCase):
+    def test_todetid(self):
+        assert 49 == todetid("D_ORCA006")
+
+    def test_todetoid(self):
+        assert "D_ORCA006" == todetoid(49)

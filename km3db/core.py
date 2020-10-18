@@ -34,13 +34,13 @@ _cookie_sid_pattern = re.compile(r"_[a-z0-9-]+_(\d{1,3}.){1,3}\d{1,3}_[a-z0-9]+"
 class DBManager:
     def __init__(self, url=None):
         self._db_url = BASE_URL if url is None else url
-        self._login_url = os.path.join(self._db_url, "home.htm")
+        self._login_url = self._db_url + "/home.htm")
         self._session_cookie = None
         self._opener = None
 
     def get(self, url, default=None):
         "Get HTML content"
-        target_url = os.path.join(self._db_url, km3db.compat.unquote(url))
+        target_url = self._db_url + "/" + km3db.compat.unquote(url)
         try:
             f = self.opener.open(target_url)
         except km3db.compat.HTTPError as e:

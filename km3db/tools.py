@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from collections import OrderedDict, namedtuple
+import json
 
 import km3db.compat
 import km3db.core

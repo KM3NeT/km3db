@@ -123,8 +123,10 @@ class StreamDS:
             if container == "nt":
                 return tonamedtuples(stream.capitalize(), data, renamemap=renamemap)
         except ValueError:
-            log.critical("Unable to convert data to container type '{}'. "
-                         "Database response: {}".format(container, data))
+            log.critical(
+                "Unable to convert data to container type '{}'. "
+                "Database response: {}".format(container, data)
+            )
         else:
             return data
 
@@ -138,6 +140,7 @@ class JSONDS:
       The URL of the database web API
 
     """
+
     def __init__(self, url=None):
         self._db = km3db.core.DBManager(url=url)
 

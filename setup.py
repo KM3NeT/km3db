@@ -48,6 +48,8 @@ setup(
             "km3db=km3db.cli.km3db:main",
             "streamds=km3db.cli.streamds:main",
             "detx=km3db.cli.detx:main",
+            "runtable=km3db.cli.runtable:main",
+            "runinfo=km3db.cli.runinfo:main",
         ],
     },
     classifiers=[

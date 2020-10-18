@@ -76,6 +76,33 @@ Command Line Utilities
 
 The following command line utilities will be accessible after installing ``km3db``.
 
+``detx``
+~~~~~~~~~~~~
+
+The ``detx`` command can be used to retrieve calibration information from the
+database formatted as DETX, which is its main offline representation format::
+
+  $ detx -h
+  Retrieves DETX files from the database.
+
+  Usage:
+      detx [options] DET_ID
+      detx DET_ID RUN
+      detx (-h | --help)
+      detx --version
+
+  Options:
+      DET_ID        The detector ID (e.g. 49)
+      RUN           The run ID.
+      -c CALIBR_ID  Geometrical calibration ID (eg. A01466417)
+      -t T0_SET     Time calibration ID (eg. A01466431)
+      -o OUT        Output folder or filename.
+      -h --help     Show this screen.
+
+  Example:
+
+      detx 49 8220  # retrieve the calibrated DETX for run 8220 of ORCA6
+
 ``streamds``
 ~~~~~~~~~~~~
 

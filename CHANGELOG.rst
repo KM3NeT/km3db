@@ -1,7 +1,7 @@
 Unreleased changes
 ------------------
 
-* ``runtable`` and ``runinfo`` command line utilities ported
+* ``wtd``, ``runtable`` and ``runinfo`` command line utilities ported
   from km3pipe
 
 Version 0

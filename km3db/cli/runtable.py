@@ -37,7 +37,7 @@ def runtable(
     det_id, n=5, run_range=None, target=None, compact=False, sep="\t", regex=None
 ):
     """Print the run table of the last `n` runs for given detector"""
-    runs = km3db.StreamDS(container="nt").get("runs", detid= det_id)
+    runs = km3db.StreamDS(container="nt").get("runs", detid=det_id)
 
     if run_range is not None:
         try:
@@ -55,7 +55,11 @@ def runtable(
             log.error("Invalid regex!")
             return
         else:
-            runs = [r for r in runs if re.match(pattern, r.runsetupname) or re.match(pattern, r.runsetupid)]
+            runs = [
+                r
+                for r in runs
+                if re.match(pattern, r.runsetupname) or re.match(pattern, r.runsetupid)
+            ]
 
     if target is not None:
         runs = [r for r in runs if r.jobtarget == target.capitalize()]
@@ -73,6 +77,7 @@ def runtable(
 
         def lineformatter(entry):
             return sep.join([str(getattr(entry, attr)) for attr in attributes])
+
     else:
         header = sep.join(runs[0]._fields)  # the dataset is homogenious
 

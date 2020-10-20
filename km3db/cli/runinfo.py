@@ -32,7 +32,6 @@ def runinfo(run_id, det_id, show_trigger=False):
         log.error("No run with ID {} found for detector ID".format(run_id, det_id))
         return
 
-
     if len(row) == 0:
         log.error("No database entry for run {0} found.".format(run_id))
         return

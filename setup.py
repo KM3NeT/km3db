@@ -50,6 +50,7 @@ setup(
             "detx=km3db.cli.detx:main",
             "runtable=km3db.cli.runtable:main",
             "runinfo=km3db.cli.runinfo:main",
+            "wtd=km3db.cli.wtd:main",
         ],
     },
     classifiers=[

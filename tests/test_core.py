@@ -2,7 +2,7 @@ import unittest
 import mock
 
 from km3db import DBManager
-from km3db.core import on_whitelisted_host, SESSION_COOKIES
+from km3db.core import on_whitelisted_host, SESSION_COOKIES, AuthenticationError
 import km3db.compat
 
 
@@ -37,7 +37,8 @@ class TestKM3DB(unittest.TestCase):
         getenv_mock.side_effect = ["username", "password"]
 
         db = DBManager()
-        cookie = db._request_session_cookie()
+        with self.assertRaises(AuthenticationError):
+            cookie = db._request_session_cookie()
 
         getenv_mock.assert_has_calls(
             [mock.call("KM3NET_DB_USERNAME"), mock.call("KM3NET_DB_PASSWORD")]

@@ -78,7 +78,7 @@ class StreamDS:
 
     def print_streams(self):
         """Print the documentation for all available streams."""
-        for stream in self.streams.values():
+        for stream in sorted(self.streams.values()):
             self._print_stream_parameters(stream)
 
     def _print_stream_parameters(self, stream):

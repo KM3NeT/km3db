@@ -12,6 +12,7 @@ import os
 import re
 import pytz
 import socket
+import time
 
 from km3db.logger import log
 import km3db.compat
@@ -31,6 +32,9 @@ UTC_TZ = pytz.timezone("UTC")
 _cookie_sid_pattern = re.compile(r"_[a-z0-9-]+_(\d{1,3}.){1,3}\d{1,3}_[a-z0-9]+")
 
 
+class AuthenticationError(Exception): pass
+
+
 class DBManager:
     def __init__(self, url=None):
         self._db_url = BASE_URL if url is None else url
@@ -38,15 +42,25 @@ class DBManager:
         self._session_cookie = None
         self._opener = None
 
-    def get(self, url, default=None):
+    def get(self, url, default=None, retry=True):
         "Get HTML content"
         target_url = self._db_url + "/" + km3db.compat.unquote(url)
         try:
             f = self.opener.open(target_url)
         except km3db.compat.HTTPError as e:
+            if e.code == 403:
+                if retry:
+                    log.error("Access forbidden, your session has expired. "
+                            "Deleting the cookie ({}) and retrying once.".format(COOKIE_FILENAME))
+                else:
+                    log.critical("Access forbidden. Giving up...")
+                    return default
+                time.sleep(1)
+                self.reset()
+                os.remove(COOKIE_FILENAME)
+                return self.get(url, default=default, retry=False)
             log.error(
-                "HTTP error, your session may be expired.\n"
-                "Original HTTP error: {}\n"
+                "HTTP error: {}\n"
                 "Target URL: {}".format(e, target_url)
             )
             return default
@@ -56,7 +70,13 @@ class DBManager:
             log.error("Incomplete data received from the DB.")
             content = icread.partial
         log.debug("Got {0} bytes of data.".format(len(content)))
+
         return content.decode("utf-8")
+
+    def reset(self):
+        "Reset everything"
+        self._opener = None
+        self._session_cookie = None
 
     @property
     def session_cookie(self):
@@ -102,8 +122,9 @@ class DBManager:
         cookie = cookie.split("sid=")[-1]
 
         if not _cookie_sid_pattern.match(cookie):
-            log.critical("Wrong username or password.")
-            return None
+            message = "Wrong username or password."
+            log.critical(message)
+            raise AuthenticationError(message)
 
         with open(COOKIE_FILENAME, "w") as fobj:
             fobj.write(".in2p3.fr\tTRUE\t/\tTRUE\t0\tsid\t{}".format(cookie))

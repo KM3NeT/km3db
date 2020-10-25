@@ -32,7 +32,8 @@ UTC_TZ = pytz.timezone("UTC")
 _cookie_sid_pattern = re.compile(r"_[a-z0-9-]+_(\d{1,3}.){1,3}\d{1,3}_[a-z0-9]+")
 
 
-class AuthenticationError(Exception): pass
+class AuthenticationError(Exception):
+    pass
 
 
 class DBManager:
@@ -50,8 +51,12 @@ class DBManager:
         except km3db.compat.HTTPError as e:
             if e.code == 403:
                 if retry:
-                    log.error("Access forbidden, your session has expired. "
-                            "Deleting the cookie ({}) and retrying once.".format(COOKIE_FILENAME))
+                    log.error(
+                        "Access forbidden, your session has expired. "
+                        "Deleting the cookie ({}) and retrying once.".format(
+                            COOKIE_FILENAME
+                        )
+                    )
                 else:
                     log.critical("Access forbidden. Giving up...")
                     return default
@@ -59,10 +64,7 @@ class DBManager:
                 self.reset()
                 os.remove(COOKIE_FILENAME)
                 return self.get(url, default=default, retry=False)
-            log.error(
-                "HTTP error: {}\n"
-                "Target URL: {}".format(e, target_url)
-            )
+            log.error("HTTP error: {}\n" "Target URL: {}".format(e, target_url))
             return default
         try:
             content = f.read()

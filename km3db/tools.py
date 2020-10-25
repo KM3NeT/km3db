@@ -91,6 +91,10 @@ class StreamDS:
         print("  optional selectors:  {}".format(stream.optional_selectors))
         print()
 
+    def help(self, stream_name):
+        """Print help for a given stream"""
+        self._print_stream_parameters(self.streams[stream_name])
+
     def get(self, stream, fmt="txt", container=None, renamemap=None, **kwargs):
         """Retrieve the data for a given stream manually
 

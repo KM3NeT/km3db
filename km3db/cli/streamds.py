@@ -61,7 +61,10 @@ def get_data(stream, parameters, fmt):
             params[key] = value
     data = sds.get(stream, fmt, **params)
     if data is not None:
-        print(data)
+        try:
+            print(data)
+        except BrokenPipeError:
+            pass
     else:
         sds.help(stream)
 

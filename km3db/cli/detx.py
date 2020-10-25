@@ -48,4 +48,7 @@ def main():
         with open(args["-o"], "w") as fobj:
             fobj.write(detx)
     else:
-        print(detx)
+        try:
+            print(detx)
+        except BrokenPipeError:
+            pass

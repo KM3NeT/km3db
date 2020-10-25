@@ -1,11 +1,16 @@
 Unreleased changes
 ------------------
 
-* ``wtd``, ``runtable`` and ``runinfo`` command line utilities ported
-  from km3pipe
 
 Version 0
 ---------
+
+0.5.0 / 2020-10-25
+~~~~~~~~~~~~~~~~~~
+* ``wtd``, ``runtable`` and ``runinfo`` command line utilities ported
+  from km3pipe
+* Lots of tiny improvements
+* Automatic cookie deletion and retry when authentication fails (403)
 
 0.4.2 / 2020-10-19
 ~~~~~~~~~~~~~~~~~~

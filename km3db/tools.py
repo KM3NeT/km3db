@@ -93,7 +93,15 @@ class StreamDS:
 
     def help(self, stream_name):
         """Print help for a given stream"""
-        self._print_stream_parameters(self.streams[stream_name])
+        try:
+            self._print_stream_parameters(self.streams[stream_name])
+        except KeyError:
+            log.error("There is no stream called '{}'".format(stream_name))
+            print(
+                "Available streams:\n{}".format(
+                    ", ".join(s.stream for s in sorted(self.streams.values()))
+                )
+            )
 
     def get(self, stream, fmt="txt", container=None, renamemap=None, **kwargs):
         """Retrieve the data for a given stream manually

@@ -18,7 +18,7 @@ import km3db
 log = km3db.logger.log
 
 
-def runinfo(run_id, det_id, show_trigger=False):
+def runinfo(run_id, det_id):
     runtable = km3db.StreamDS(container="nt").get("runtable", detid=det_id)
 
     if runtable is None:
@@ -71,4 +71,4 @@ def main():
 
     args = docopt(__doc__, version=km3db.version)
 
-    runinfo(int(args["RUN"]), int(args["DET_ID"]), args["-t"])
+    runinfo(int(args["RUN"]), int(args["DET_ID"]))

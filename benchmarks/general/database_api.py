@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
 
-import km3pipe as kp
+import km3db
 
-db = kp.db.DBManager()
+db = km3db.DBManager()

@@ -69,6 +69,6 @@ def runinfo(run_id, det_id, show_trigger=False):
 def main():
     from docopt import docopt
 
-    args = docopt(__doc__, version=kp.version)
+    args = docopt(__doc__, version=km3db.version)
 
     runinfo(int(args["RUN"]), int(args["DET_ID"]), args["-t"])

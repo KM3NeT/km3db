@@ -55,6 +55,39 @@ exceeding multiples of GB::
 
   >>> import km3db
   >>> sds = km3db.StreamDS()
+  >>> print(sds.detectors())
+  OID	SERIALNUMBER	LOCATIONID	CITY	FIRSTRUN	LASTRUN
+  D_DU1CPPM	2	A00070004	Marseille	2	10
+  A00350276	3	A00070003	Napoli	0	0
+  ...
+  ...
+  D1DU039CT	59	A02181273	Catania	408	480
+  D0DU040CE	60	A01288502	Caserta	0	0
+  >>> print(sds.get("detectors"))  # alternative way to call it
+  ...
+
+In km3pipe v8 and below, the `StreamDS` class always returned `pandas.DataFrames`
+by default. This has been changed in `km3db` and by default, only the raw ASCII
+output is returned, as delivered by the database.
+
+One can however change the output container type back to `pandas.DataFrame` by
+passing `container="pd"` to either the `StreamDS()` constructor or to the
+`.get()` function itself. Another supported container type is `namedtuple` from
+the Python standard library (`collections.namedtuple`), available via
+`container="nt"`::
+
+   >>> sds = km3db.StreamDS(container="pd")
+   >>> type(sds.detectors())
+   pandas.core.frame.DataFrame
+
+   # pandas DataFrame only on a specific call
+   >>> sds = km3db.StreamDS()
+   >>> type(sds.get("detectors", container="pd"))
+   pandas.core.frame.DataFrame
+
+   # namedtuple
+   >>> sds.get("detectors", container="nt")[0]
+   Detectors(oid='D_DU1CPPM', serialnumber=2, locationid='A00070004', city='Marseille', firstrun=2, lastrun=10)
 
 ``CLBMap``
 ~~~~~~~~~~

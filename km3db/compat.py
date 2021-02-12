@@ -4,6 +4,7 @@ A single place where Python 2 vs Python 3 compatibility issues are dealt with.
 """
 
 from functools import wraps
+import socket
 
 try:
     from urllib.parse import urlencode, unquote
@@ -34,6 +35,18 @@ except ImportError:
     from httplib import IncompleteRead
 
     user_input = raw_input
+
+
+original_getaddrinfo = socket.getaddrinfo
+
+
+def ipv4_forced_getaddrinfo(*args, **kwargs):
+    responses = original_getaddrinfo(*args, **kwargs)
+    return [res for res in responses if res[0] == socket.AF_INET]
+
+
+# Monkey patch to force IPv4
+socket.getaddrinfo = ipv4_forced_getaddrinfo
 
 
 def lru_cache(func):

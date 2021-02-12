@@ -5,6 +5,10 @@ Unreleased changes
 Version 0
 ---------
 
+0.5.1 / 2021-02-12
+~~~~~~~~~~~~~~~~~~
+* Forces IPv4 for the DB Webserver since IPv6 is not supported
+
 0.5.0 / 2020-10-25
 ~~~~~~~~~~~~~~~~~~
 * ``wtd``, ``runtable`` and ``runinfo`` command line utilities ported

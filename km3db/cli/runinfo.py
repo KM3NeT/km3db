@@ -13,38 +13,35 @@ Options:
     RUN                 Run number.
 
 """
+from datetime import datetime, timezone
 import km3db
 
 log = km3db.logger.log
 
 
 def runinfo(run_id, det_id):
-    runtable = km3db.StreamDS(container="nt").get("runtable", detid=det_id)
+    runs = km3db.StreamDS(container="nt").get("runs", detid=det_id)
 
-    if runtable is None:
+    if runs is None:
         log.error("No runs found for detector ID {}".format(det_id))
         return
 
-    for run in runtable:
+    for idx, run in enumerate(runs):
         if run.run == run_id:
             break
     else:
         log.error("No run with ID {} found for detector ID".format(run_id, det_id))
         return
 
-    if len(row) == 0:
-        log.error("No database entry for run {0} found.".format(run_id))
-        return
-    next_row = df[df["RUN"] == (run_id + 1)]
-    if len(next_row) != 0:
-        end_time = next_row["DATETIME"].values[0]
-        duration = (
-            (next_row["UNIXSTARTTIME"].values[0] - row["UNIXSTARTTIME"].values[0])
-            / 1000
-            / 60
-        )
-    else:
+    try:
+        next_run = runs[idx + 1]
+    except IndexError:
+        next_run = None
         end_time = duration = float("NaN")
+    else:
+        duration = (next_run.unixstarttime - run.unixstarttime) / 1000 / 60
+        end_time = iso8601utc(next_run.unixstarttime / 1000)
+
     print("Run {0} - detector ID: {1}".format(run_id, det_id))
     print("-" * 42)
     print(
@@ -54,16 +51,20 @@ def runinfo(run_id, det_id):
         "  Start time defined: {3}\n"
         "  Runsetup ID:        {4}\n"
         "  Runsetup name:      {5}\n"
-        "  T0 Calibration ID:  {6}\n".format(
-            row["DATETIME"].values[0],
+        "  T0 Calibration ID:  {6}".format(
+            iso8601utc(run.unixstarttime / 1000),
             end_time,
             duration,
-            bool(row["STARTTIME_DEFINED"].values[0]),
-            row["RUNSETUPID"].values[0],
-            row["RUNSETUPNAME"].values[0],
-            row["T0_CALIBSETID"].values[0],
+            bool(run.starttime_defined),
+            run.runsetupid,
+            run.runsetupname,
+            run.t0_calibsetid,
         )
     )
+
+
+def iso8601utc(timestamp):
+    return datetime.fromtimestamp(timestamp, tz=timezone.utc).isoformat()
 
 
 def main():

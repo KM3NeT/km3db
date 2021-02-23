@@ -7,6 +7,4 @@ streamds list
 
 streamds get detectors
 
-streamds help detectors
-
-streamds help foo
+streamds info detectors

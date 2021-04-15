@@ -1,3 +1,4 @@
 coloredlogs
 docopt
+pytz
 setuptools_scm

@@ -1,7 +1,8 @@
 Unreleased changes
 ------------------
 
-- Added missing dependency ``pytc`` to the requirements
+* Added missing dependency ``pytc`` to the requirements
+* Refactored the ``tools.detx`` and ``tools.detx_for_run`` functions
 
 
 Version 0

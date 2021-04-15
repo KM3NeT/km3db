@@ -354,18 +354,14 @@ def show_compass_calibration(clb_upi, version="3"):
             print("{}: {}".format(name, value))
 
 
-def detx(det_id, t0set=None, calibration=None):
-    """Retrieve the detector file for given detector ID"""
-    url = "detx/{0}?".format(det_id)  # '?' for easy concat below
+def detx(det_id, pcal=0, rcal=0, tcal=0):
+    """Retrieve the calibrated detector file for the given detector ID"""
 
-    if t0set is not None:
-        url += "&t0set=" + str(t0set)
-    if calibration is not None:
-        url += "&calibrid=" + str(calibration)
+    url = "detx/{det_id}?tcal={tcal}&pcal={pcal}&rcal={rcal}".format(
+        det_id=det_id, tcal=tcal, pcal=pcal, rcal=rcal
+    )
 
-    detx_content = km3db.core.DBManager().get(url)
-
-    return detx_content
+    return km3db.core.DBManager().get(url)
 
 
 def detx_for_run(det_id, run):
@@ -405,9 +401,4 @@ def detx_for_run(det_id, run):
         )
         rcal = 0
 
-    url = "detx/{det_id}?tcal={tcal}&pcal={pcal}&rcal={rcal}".format(
-        det_id=det_id, tcal=tcal, pcal=pcal, rcal=rcal
-    )
-
-    detx = km3db.core.DBManager().get(url)
-    return detx
+    return detx(det_id, pcal=pcal, rcal=rcal, tcal=tcal)

@@ -39,7 +39,8 @@ __email__ = "tgal@km3net.de"
 __status__ = "Development"
 
 TESTS_DIR = sys.argv[1]
-JUNIT_XML = 'reports/junit_{}.xml'.format(os.path.basename(TESTS_DIR))
+REPORTS_PATH = 'reports'
+JUNIT_XML = join(REPORTS_PATH, 'junit_{}.xml'.format(os.path.basename(TESTS_DIR)))
 
 if hasattr(sys.stdout, 'isatty') and sys.stdout.isatty():
     INFO = '\033[94m'  # blue
@@ -52,6 +53,8 @@ else:
 
 
 def main():
+    os.makedirs(REPORTS_PATH, exist_ok=True)
+
     test_results = run_tests(TESTS_DIR)
     n_tests = len(test_results)
     n_failed_tests = sum(1 for r in test_results.values() if r[0] > 0)

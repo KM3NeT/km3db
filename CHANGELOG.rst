@@ -1,6 +1,8 @@
 Unreleased changes
 ------------------
 
+- Added missing dependency ``pytc`` to the requirements
+
 
 Version 0
 ---------

@@ -93,22 +93,33 @@ class DBManager:
 
     def _request_session_cookie(self):
         """Request cookie for permanent session."""
-        # Environment variables have the highest precedence.
-        username = os.getenv("KM3NET_DB_USERNAME")
-        password = os.getenv("KM3NET_DB_PASSWORD")
         # Next, try the configuration file according to
         # the specification described here:
         # https://wiki.km3net.de/index.php/Database#Scripting_access
         if os.path.exists(COOKIE_FILENAME):
+            log.info("Using cookie from %s", COOKIE_FILENAME)
             with open(COOKIE_FILENAME) as fobj:
                 content = fobj.read()
-            return content.split("\t")[-1].strip()
+            return content.split()[-1].strip()
 
-        # Last resort: we ask interactively
-        if username is None:
+        # The cookie can also be set via the environment
+        cookie = os.getenv("KM3NET_DB_COOKIE")
+        if cookie is not None:
+            log.info("Using cookie from env ($KM3NET_DB_COOKIE)")
+            return cookie
+
+        username = os.getenv("KM3NET_DB_USERNAME")
+        password = os.getenv("KM3NET_DB_PASSWORD")
+
+        if username is None or password is None:
+            # Last resort: we ask interactively
             username = km3db.compat.user_input("Please enter your KM3NeT DB username: ")
-        if password is None:
             password = getpass.getpass("Password: ")
+        else:
+            log.info(
+                "Using credentials from env ($KM3NET_DB_USERNAME and "
+                "$KM3NET_DB_PASSWORD)"
+            )
 
         target_url = self._login_url + "?usr={0}&pwd={1}&persist=y".format(
             username, password
@@ -128,6 +139,7 @@ class DBManager:
             log.critical(message)
             raise AuthenticationError(message)
 
+        log.info("Writing session cookie to %s", COOKIE_FILENAME)
         with open(COOKIE_FILENAME, "w") as fobj:
             fobj.write(".in2p3.fr\tTRUE\t/\tTRUE\t0\tsid\t{}".format(cookie))
 

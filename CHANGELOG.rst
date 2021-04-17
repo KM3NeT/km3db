@@ -3,6 +3,8 @@ Unreleased changes
 
 * Added missing dependency ``pytc`` to the requirements
 * Refactored the ``tools.detx`` and ``tools.detx_for_run`` functions
+* The KM3NeT DB cookie can now also be provided via an environment variable
+  ``KM3NET_DB_COOKIE``
 
 
 Version 0

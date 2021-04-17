@@ -41,7 +41,11 @@ class TestKM3DB(unittest.TestCase):
             cookie = db._request_session_cookie()
 
         getenv_mock.assert_has_calls(
-            [mock.call("KM3NET_DB_COOKIE"), mock.call("KM3NET_DB_USERNAME"), mock.call("KM3NET_DB_PASSWORD")]
+            [
+                mock.call("KM3NET_DB_COOKIE"),
+                mock.call("KM3NET_DB_USERNAME"),
+                mock.call("KM3NET_DB_PASSWORD"),
+            ]
         )
 
         urlopen_mock.assert_called_with(

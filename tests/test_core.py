@@ -61,7 +61,6 @@ class TestKM3DB(unittest.TestCase):
             def read(self):
                 return b"foo"
 
-
         the_cookie = "namnam"
 
         exists_mock.return_value = False

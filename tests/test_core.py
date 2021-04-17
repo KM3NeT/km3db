@@ -34,14 +34,14 @@ class TestKM3DB(unittest.TestCase):
 
         urlopen_mock.return_value = StreamMock()
         exists_mock.return_value = False
-        getenv_mock.side_effect = ["username", "password"]
+        getenv_mock.side_effect = [None, "username", "password"]
 
         db = DBManager()
         with self.assertRaises(AuthenticationError):
             cookie = db._request_session_cookie()
 
         getenv_mock.assert_has_calls(
-            [mock.call("KM3NET_DB_USERNAME"), mock.call("KM3NET_DB_PASSWORD")]
+            [mock.call("KM3NET_DB_COOKIE"), mock.call("KM3NET_DB_USERNAME"), mock.call("KM3NET_DB_PASSWORD")]
         )
 
         urlopen_mock.assert_called_with(

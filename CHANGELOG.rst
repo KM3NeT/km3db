@@ -1,14 +1,18 @@
 Unreleased changes
 ------------------
 
+
+
+Version 0
+---------
+
+0.6.0 / 2021-04-17
+~~~~~~~~~~~~~~~~~~
 * Added missing dependency ``pytc`` to the requirements
 * Refactored the ``tools.detx`` and ``tools.detx_for_run`` functions
 * The KM3NeT DB cookie can now also be provided via an environment variable
   ``KM3NET_DB_COOKIE``
 
-
-Version 0
----------
 0.5.2 / 2021-02-23
 ~~~~~~~~~~~~~~~~~~
 * Fixed ``runinfo``

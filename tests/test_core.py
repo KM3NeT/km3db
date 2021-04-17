@@ -25,7 +25,7 @@ class TestKM3DB(unittest.TestCase):
     @mock.patch("os.path.exists")
     @mock.patch("os.getenv")
     @mock.patch("km3db.compat.urlopen")
-    def test_request_session_cookie_from_env(
+    def test_request_session_cookie_from_env_with_credentials(
         self, urlopen_mock, getenv_mock, exists_mock
     ):
         class StreamMock:
@@ -51,3 +51,30 @@ class TestKM3DB(unittest.TestCase):
         urlopen_mock.assert_called_with(
             "https://km3netdbweb.in2p3.fr/home.htm?usr=username&pwd=password&persist=y"
         )
+
+    @mock.patch("os.path.exists")
+    @mock.patch("os.getenv")
+    def test_request_session_cookie_from_env_with_cookie(
+        self, getenv_mock, exists_mock
+    ):
+        class StreamMock:
+            def read(self):
+                return b"foo"
+
+
+        the_cookie = "namnam"
+
+        exists_mock.return_value = False
+        getenv_mock.side_effect = [the_cookie]
+
+        db = DBManager()
+
+        cookie = db._request_session_cookie()
+
+        getenv_mock.assert_has_calls(
+            [
+                mock.call("KM3NET_DB_COOKIE"),
+            ]
+        )
+
+        assert the_cookie == cookie

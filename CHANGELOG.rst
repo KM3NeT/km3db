@@ -6,6 +6,10 @@ Unreleased changes
 Version 0
 ---------
 
+0.7.0 / 2021-05-19
+~~~~~~~~~~~~~~~~~~
+* ``streamds upload`` is now available
+
 0.6.0 / 2021-04-17
 ~~~~~~~~~~~~~~~~~~
 * Added missing dependency ``pytc`` to the requirements

@@ -25,6 +25,7 @@ import getpass
 import json
 import logging
 import os
+import requests
 
 import km3db
 import km3db.extras
@@ -143,7 +144,6 @@ def upload_runsummary(csv_filename, testrun=False, verify=False):
     session_cookie = db.session_cookie
 
     print("Uploading the data to the database.")
-    return
     r = requests.post(
         RUNSUMMARY_URL,
         cookies={"sid": session_cookie},

@@ -1,4 +1,5 @@
 coloredlogs
 docopt
 pytz
+requests
 setuptools_scm

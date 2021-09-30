@@ -1,7 +1,7 @@
 Unreleased changes
 ------------------
 
-
+* Removed ``coloredlogs`` dependency
 
 Version 0
 ---------

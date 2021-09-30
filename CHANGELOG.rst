@@ -1,10 +1,12 @@
 Unreleased changes
 ------------------
 
-* Removed ``coloredlogs`` dependency
-
 Version 0
 ---------
+
+0.7.1 / 2021-09-30
+~~~~~~~~~~~~~~~~~~
+* Removed ``coloredlogs`` dependency
 
 0.7.0 / 2021-05-19
 ~~~~~~~~~~~~~~~~~~

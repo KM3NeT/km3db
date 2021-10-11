@@ -379,23 +379,21 @@ def detx_for_run(det_id, run):
         return None
 
     tcal = run_info.t0_calibsetid
-    if str(tcal) == "nan":
+    if tcal == '':
         log.warning(
             "No time calibration found for run {} (detector {})".format(run, det_id)
         )
         tcal = 0
 
-    try:
-        pcal = int(run_info.pos_calibsetid)
-    except ValueError:
+    pcal = run_info.pos_calibsetid
+    if pcal == '':
         log.warning(
             "No position calibration found for run {} (detector {})".format(run, det_id)
         )
         pcal = 0
 
-    try:
-        rcal = int(run_info.rot_calibsetid)
-    except ValueError:
+    rcal = run_info.rot_calibsetid
+    if rcal == '':
         log.warning(
             "No rotation calibration found for run {} (detector {})".format(run, det_id)
         )

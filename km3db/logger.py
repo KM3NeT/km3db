@@ -199,4 +199,4 @@ if supports_color():
 
 
 log = get_logger("km3db")
-set_level(log, "DEBUG")
+set_level(log, "WARNING")

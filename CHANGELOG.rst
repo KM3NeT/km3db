@@ -3,6 +3,10 @@ Unreleased changes
 
 Version 0
 ---------
+0.7.2 / 2021-10-11
+~~~~~~~~~~~~~~~~~~
+* Fixed the calibset retrieval for ``detx DET_ID RUN`` since the default
+  values has changed
 
 0.7.1 / 2021-09-30
 ~~~~~~~~~~~~~~~~~~

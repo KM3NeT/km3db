@@ -54,9 +54,8 @@ class DBManager:
                 if retry:
                     log.error(
                         "Access forbidden, your session has expired. "
-                        "Deleting the cookie ({}) and retrying once.".format(
+                        "Deleting the cookie (%s) and retrying once.", 
                             COOKIE_FILENAME
-                        )
                     )
                 else:
                     log.critical("Access forbidden. Giving up...")

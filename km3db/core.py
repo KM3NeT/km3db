@@ -46,7 +46,7 @@ class DBManager:
     def get(self, url, default=None, retry=True):
         "Get HTML content"
         target_url = self._db_url + "/" + km3db.compat.unquote(url)
-        log.debug(f"Accessing {target_url}")
+        log.debug("Accessing %s", target_url)
         try:
             f = self.opener.open(target_url)
         except km3db.compat.HTTPError as e:
@@ -157,7 +157,7 @@ class DBManager:
                 log.critical("Could not connect to database.")
                 return
             opener.addheaders.append(("Cookie", "sid=" + cookie))
-            log.debug(f"Using session cookie: sid={cookie}")
+            log.debug("Using session cookie: sid=%s", cookie)
             self._opener = opener
         else:
             log.debug("Reusing connection manager")

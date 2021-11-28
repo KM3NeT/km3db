@@ -1,6 +1,8 @@
 Unreleased changes
 ------------------
 
+* Added a catch and retry for "connection refused" in the ``DBManager``
+
 Version 0
 ---------
 0.7.2 / 2021-10-11

@@ -64,7 +64,18 @@ class DBManager:
                 self.reset()
                 os.remove(COOKIE_FILENAME)
                 return self.get(url, default=default, retry=False)
-            log.error("HTTP error: {}\n" "Target URL: {}".format(e, target_url))
+            log.error("HTTP error: %s\n" "Target URL: %s", e, target_url)
+            return default
+        except km3db.compat.URLError as e:
+            if e.code == 111:
+                if retry:
+                    log.error("Connection refused, retrying in 30 seconds.")
+                else:
+                    log.critical("Connection refused. Giving up...")
+                    return default
+                time.sleep(30)
+                return self.get(url, default=default, retry=False)
+            log.error("URL error: {}\n" "Target URL: {}".format(e, target_url))
             return default
         try:
             content = f.read()

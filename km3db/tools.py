@@ -118,6 +118,7 @@ class StreamDS:
         """
         sel = "".join(["&{0}={1}".format(k, v) for (k, v) in kwargs.items()])
         url = "streamds/{0}.{1}?{2}".format(stream, fmt, sel[1:])
+        log.debug("URL: %s" % url)
         data = self._db.get(url)
         if not data:
             log.error("No data found at URL '%s'." % url)

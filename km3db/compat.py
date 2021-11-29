@@ -32,7 +32,7 @@ except ImportError:
         HTTPError,
     )
     from StringIO import StringIO
-    from httplib import IncompleteRead, RemoteDisconnected
+    from httplib import IncompleteRead, HTTPException as RemoteDisconnected
 
     user_input = raw_input
 

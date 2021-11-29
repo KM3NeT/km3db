@@ -43,7 +43,7 @@ class DBManager:
         self._session_cookie = None
         self._opener = None
 
-    def get(self, url, default=None, retry=True):
+    def get(self, url, default=None, retries=10):
         "Get HTML content"
         target_url = self._db_url + "/" + km3db.compat.unquote(url)
         log.debug("Accessing %s", target_url)
@@ -51,32 +51,31 @@ class DBManager:
             f = self.opener.open(target_url)
         except km3db.compat.HTTPError as e:
             if e.code == 403:
-                if retry:
+                if retries:
                     log.error(
                         "Access forbidden, your session has expired. "
                         "Deleting the cookie (%s) and retrying once.", 
                             COOKIE_FILENAME
                     )
+                    retries -= 1
                 else:
                     log.critical("Access forbidden. Giving up...")
                     return default
                 time.sleep(1)
                 self.reset()
                 os.remove(COOKIE_FILENAME)
-                return self.get(url, default=default, retry=False)
+                return self.get(url, default=default, retries=retries)
             log.error("HTTP error: %s\n" "Target URL: %s", e, target_url)
             return default
         except km3db.compat.URLError as e:
-            if e.code == 111:
-                if retry:
-                    log.error("Connection refused, retrying in 30 seconds.")
-                else:
-                    log.critical("Connection refused. Giving up...")
-                    return default
+            if retries:
+                retries -= 1
+                log.error("URLError '%s', retrying in 30 seconds.", e)
                 time.sleep(30)
-                return self.get(url, default=default, retry=False)
-            log.error("URL error: {}\n" "Target URL: {}".format(e, target_url))
-            return default
+                return self.get(url, default=default, retries=retries)
+            else:
+                log.error("Giving up... URLError: %s\n" "Target URL: %s", e, target_url)
+                return default
         try:
             content = f.read()
         except km3db.compat.IncompleteRead as icread:

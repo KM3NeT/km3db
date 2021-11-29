@@ -76,6 +76,15 @@ class DBManager:
             else:
                 log.error("Giving up... URLError: %s\n" "Target URL: %s", e, target_url)
                 return default
+        except km3db.compat.RemoteDisconnected as e:
+            if retries:
+                retries -= 1
+                log.error("RemoteDisconnected '%s', retrying in 30 seconds.", e)
+                time.sleep(30)
+                return self.get(url, default=default, retries=retries)
+            else:
+                log.error("Giving up... RemoteDisconnected: %s\n" "Target URL: %s", e, target_url)
+                return default
         try:
             content = f.read()
         except km3db.compat.IncompleteRead as icread:

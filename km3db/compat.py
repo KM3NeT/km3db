@@ -17,7 +17,7 @@ try:
     )
     from urllib.error import URLError, HTTPError
     from io import StringIO
-    from http.client import IncompleteRead
+    from http.client import IncompleteRead, RemoteDisconnected
 
     user_input = input
 except ImportError:
@@ -32,7 +32,7 @@ except ImportError:
         HTTPError,
     )
     from StringIO import StringIO
-    from httplib import IncompleteRead
+    from httplib import IncompleteRead, RemoteDisconnected
 
     user_input = raw_input
 

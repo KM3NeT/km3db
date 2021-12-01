@@ -1,10 +1,14 @@
 Unreleased changes
 ------------------
 
-* Added a catch and retry for "connection refused" in the ``DBManager``
 
 Version 0
 ---------
+0.7.3 / 2021-12-01
+~~~~~~~~~~~~~~~~~~
+* Several stability improvements for the database access functions
+* Added a catch and retry for "connection refused" in the ``DBManager``
+
 0.7.2 / 2021-10-11
 ~~~~~~~~~~~~~~~~~~
 * Fixed the calibset retrieval for ``detx DET_ID RUN`` since the default

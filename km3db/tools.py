@@ -165,9 +165,9 @@ class JSONDS:
         except AttributeError:
             json_content = json.loads(content)
         if json_content.get("Comment") is not None:
-            self.log.warning(json_content["Comment"])
+            log.warning(json_content["Comment"])
         if json_content["Result"] != "OK":
-            self.log.critical("Error from DB: %s", json_content.get("Data"))
+            log.critical("Error from DB: %s", json_content.get("Data"))
             raise ValueError("Error while retrieving the parameter list.")
         return json_content["Data"]
 

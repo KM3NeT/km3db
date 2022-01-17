@@ -4,6 +4,10 @@ Unreleased changes
 
 Version 0
 ---------
+0.7.4 / 2022-01-17
+~~~~~~~~~~~~~~~~~~
+* Improved the behaviour when the extern IP identification fails
+
 0.7.3 / 2021-12-01
 ~~~~~~~~~~~~~~~~~~
 * Several stability improvements for the database access functions

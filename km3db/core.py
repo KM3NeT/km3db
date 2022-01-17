@@ -199,9 +199,4 @@ def on_whitelisted_host(name):
             return False
         return ip == socket.gethostbyname("jupyter.km3net.de")
     if name == "gitlab":
-        try:
-            external_ip = km3db.compat.urlopen("https://ident.me").read().decode("utf8")
-        except km3db.compat.URLError as e:
-            log.warning("Could not identify external IP address: %s\nSkipping...", e)
-            return False
-        return external_ip == "131.188.161.155"
+        return "GITLAB_CI" in os.environ

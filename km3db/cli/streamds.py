@@ -205,7 +205,8 @@ def _database_upload(data, verify=False, isrunsummarystrings=False):
     session_cookie = db.session_cookie
 
     print("Uploading the data to the database.")
-    r = requests.post(RUNSUMMARYNUMBERS_URL,
+    url = RUNSUMMARYSTRINGS_URL if isrunsummarystrings else RUNSUMMARYNUMBERS_URL
+    r = requests.post(url,
                       cookies={"sid": session_cookie},
                       files={'datafile': data},
                       verify=verify)

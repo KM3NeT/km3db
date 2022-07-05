@@ -176,9 +176,7 @@ def upload_runsummary(csv_filename, testrun=False, verify=False):
     else:
         prefix = ""
 
-    db = km3db.DBManager()  # noqa
-
-    det_id_zero_mask = df["det_id"] == 0
+    det_id_zero_mask = df['det_id'] == 0
     if sum(det_id_zero_mask) > 0:
         log.warning("Entries with 'det_id=0' found, removing them.")
         df = df[~det_id_zero_mask]
@@ -188,17 +186,21 @@ def upload_runsummary(csv_filename, testrun=False, verify=False):
     data_runsummarynumbers = convert_runsummary_to_json(
         df[df.columns.difference(RUNSUMMARYSTRINGS_COLUMNS)], prefix=prefix)
     print("We have {:.3f} MB runsummarynumbers to upload.".format(
-        len(data) / 1024**2))
+        len(data_runsummarynumbers) / 1024**2))
     _database_upload(data_runsummarynumbers, verify)
 
     data_runsummarystrings = convert_runsummary_to_json(
-        df[REQUIRED_COLUMNS + RUNSUMMARYSTRINGS_COLUMNS], prefix=prefix)
+        df[REQUIRED_COLUMNS.union(RUNSUMMARYSTRINGS_COLUMNS)],
+        prefix=prefix,
+        isrunsummarystrings=True)
     print("We have {:.3f} MB runsummarystrings to upload.".format(
-        len(data) / 1024**2))
-    _database_upload(data_runsummarystrings, verify)
+        len(data_runsummarystrings) / 1024**2))
+    _database_upload(data_runsummarystrings, verify, isrunsummarystrings=True)
 
 
 def _database_upload(data, verify=False, isrunsummarystrings=False):
+    db = km3db.DBManager()  # noqa
+
     print("Requesting database session.")
     session_cookie = db.session_cookie
 
@@ -227,7 +229,7 @@ def _database_upload(data, verify=False, isrunsummarystrings=False):
 def convert_runsummary_to_json(df,
                                comment='Uploaded via km3pipe.StreamDS',
                                prefix='TEST_',
-                               isrunsummarynumbers=True):
+                               isrunsummarystrings=False):
     """Convert a Pandas DataFrame with runsummary to JSON for DB upload"""
     data_field = []
     comment += ", by {}".format(getpass.getuser())
@@ -249,7 +251,7 @@ def convert_runsummary_to_json(df,
                         entry = {"Name": prefix + parameter_name, "Data": []}
                         parameter_dict[parameter_name] = entry
                     data_value = getattr(row[1], parameter_name)
-                    if isrunsummarynumbers:
+                    if not isrunsummarystrings:
                         try:
                             data_value = float(data_value)
                         except ValueError as e:

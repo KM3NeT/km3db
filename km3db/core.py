@@ -63,7 +63,8 @@ class DBManager:
                     return default
                 time.sleep(1)
                 self.reset()
-                os.remove(COOKIE_FILENAME)
+                if os.path.exists(COOKIE_FILENAME):
+                    os.remove(COOKIE_FILENAME)
                 return self.get(url, default=default, retries=retries)
             log.error("HTTP error: %s\n" "Target URL: %s", e, target_url)
             return default

@@ -4,6 +4,10 @@ Unreleased changes
 
 Version 0
 ---------
+0.7.5 / 2022-09-01
+~~~~~~~~~~~~~~~~~~
+* Added the updated KM3NeT DB cookie for the new GitLab CI runners
+
 0.7.4 / 2022-01-17
 ~~~~~~~~~~~~~~~~~~
 * Improved the behaviour when the extern IP identification fails

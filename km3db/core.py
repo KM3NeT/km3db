@@ -25,7 +25,7 @@ COOKIE_FILENAME = os.path.expanduser("~/.km3netdb_cookie")
 SESSION_COOKIES = dict(
     lyon="_kmcprod_134.158_lyo7783844001343100343mcprod1223user",
     jupyter="_jupyter-km3net_131.188.161.143_d9fe89a1568a49a5ac03bdf15d93d799",
-    gitlab="_gitlab-km3net_131.188.161.155_f835d56ca6d946efb38324d59e040761",
+    gitlab="_gitlab-km3net_131.188_ce0e106433dd4923b522716b23c992c2",
 )
 UTC_TZ = pytz.timezone("UTC")
 

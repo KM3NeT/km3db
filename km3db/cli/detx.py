@@ -14,6 +14,7 @@ Options:
     -p P_CAL      Position calibration ID [default: 0].
     -r R_CAL      Rotation calibration ID [default: 0].
     -t T_CAL      Time calibration ID [default: 0].
+    -v VERSION    DETX file format version [default: 2].
     -o OUT        Output folder or filename.
     -h --help     Show this screen.
 
@@ -37,10 +38,10 @@ def main():
         return
 
     if args["RUN"] is not None:
-        detx = km3db.tools.detx_for_run(det_id, int(args["RUN"]))
+        detx = km3db.tools.detx_for_run(det_id, int(args["RUN"]), version=int(args["-v"]))
     else:
         detx = km3db.tools.detx(
-            det_id, pcal=args["-p"], rcal=args["-r"], tcal=args["-t"]
+            det_id, pcal=args["-p"], rcal=args["-r"], tcal=args["-t"], version=int(args["-v"]) 
         )
 
     if detx is None:

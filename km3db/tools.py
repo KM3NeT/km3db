@@ -355,17 +355,17 @@ def show_compass_calibration(clb_upi, version="3"):
             print("{}: {}".format(name, value))
 
 
-def detx(det_id, pcal=0, rcal=0, tcal=0):
+def detx(det_id, pcal=0, rcal=0, tcal=0, version=2):
     """Retrieve the calibrated detector file for the given detector ID"""
 
-    url = "detx/{det_id}?tcal={tcal}&pcal={pcal}&rcal={rcal}".format(
-        det_id=det_id, tcal=tcal, pcal=pcal, rcal=rcal
+    url = "detx/{det_id}?tcal={tcal}&pcal={pcal}&rcal={rcal}&v={version}".format(
+        det_id=det_id, tcal=tcal, pcal=pcal, rcal=rcal, version=version
     )
 
     return km3db.core.DBManager().get(url)
 
 
-def detx_for_run(det_id, run):
+def detx_for_run(det_id, run, version=2):
     """Retrieve the calibrate detector file for given run"""
     run_table = StreamDS(container="nt").get("runs", detid=det_id)
     if run_table is None:
@@ -400,4 +400,4 @@ def detx_for_run(det_id, run):
         )
         rcal = 0
 
-    return detx(det_id, pcal=pcal, rcal=rcal, tcal=tcal)
+    return detx(det_id, pcal=pcal, rcal=rcal, tcal=tcal, version=version)

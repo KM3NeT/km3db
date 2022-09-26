@@ -4,6 +4,10 @@ Unreleased changes
 
 Version 0
 ---------
+0.8.0 / 2022-09-26
+~~~~~~~~~~~~~~~~~~
+* Allow option for ``detx`` to choose the format version with ``-v``
+
 0.7.5 / 2022-09-01
 ~~~~~~~~~~~~~~~~~~
 * Added the updated KM3NeT DB cookie for the new GitLab CI runners

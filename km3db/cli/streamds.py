@@ -6,7 +6,7 @@ Usage:
     streamds
     streamds list
     streamds info STREAM
-    streamds get [-f FORMAT -o OUTFILE -g GROUPBY] STREAM [PARAMETERS...]
+    streamds get [-f FORMAT -o OUTFILE -g COLUMN] STREAM [PARAMETERS...]
     streamds upload [-q -x] CSV_FILE
     streamds (-h | --help)
     streamds --version
@@ -17,7 +17,7 @@ Options:
     CSV_FILE    Whitespace separated data for the runsummary tables.
     -f FORMAT   Usually 'txt' for ASCII or 'text' for UTF-8 [default: txt].
     -o OUTFILE  Output file: supported formats '.csv' and '.h5'.
-    -g GROUPBY  Group dataset by the name of the given row when writing HDF5.
+    -g COLUMN   Group dataset by the name of the given row when writing HDF5.
     -q          Test run! When uploading, a TEST_ prefix will be added to the data.
     -x          Do not verify the SSL certificate.
     -h --help   Show this screen.

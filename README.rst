@@ -150,14 +150,19 @@ The help output explains all the available functionality of the tool::
       streamds
       streamds list
       streamds info STREAM
-      streamds get [-f FORMAT] STREAM [PARAMETERS...]
+      streamds get [-f FORMAT -o OUTFILE -g GROUPBY] STREAM [PARAMETERS...]
+      streamds upload [-q -x] CSV_FILE
       streamds (-h | --help)
       streamds --version
 
   Options:
       STREAM      Name of the stream.
       PARAMETERS  List of parameters separated by space (e.g. detid=29).
+      CSV_FILE    Whitespace separated data for the runsummary tables.
       -f FORMAT   Usually 'txt' for ASCII or 'text' for UTF-8 [default: txt].
+      -o OUTFILE  Output file: supported formats '.csv' and '.h5'.
+      -g GROUPBY  Group dataset by the name of the given row when writing HDF5.
+      -q          Test run! When uploading, a TEST_ prefix will be added to the data.
       -x          Do not verify the SSL certificate.
       -h --help   Show this screen.
 
@@ -175,6 +180,10 @@ For example, a list of available detectors::
   D_DU004NA	12	A00070003	Napoli	243	342
   D_DU001MA	13	A00070004	Marseille	1	1922
   D_ARCA003	14	A00073795	Italy	1	6465
+
+To write the database output to a file, use the ``-o`` option, e.g.
+``streamds get detectors -o detectors.csv``. The currently supported
+filetypes are ``.csv`` and ``.h5``.
 
 
 ``km3db``

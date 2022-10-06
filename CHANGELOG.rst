@@ -4,6 +4,11 @@ Unreleased changes
 
 Version 0
 ---------
+0.9.0 / 2022-10-07
+~~~~~~~~~~~~~~~~~~
+* Added support for direct HDF5 and CSV output: no shell-piping needed anymore:
+  ``streamds get detectors -o detectors.csv``.
+
 0.8.0 / 2022-09-26
 ~~~~~~~~~~~~~~~~~~
 * Allow option for ``detx`` to choose the format version with ``-v``

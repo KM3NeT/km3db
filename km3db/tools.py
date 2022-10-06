@@ -407,21 +407,21 @@ def detx_for_run(det_id, run, version=2):
         return None
 
     tcal = run_info.t0_calibsetid
-    if tcal == '':
+    if tcal == "":
         log.warning(
             "No time calibration found for run {} (detector {})".format(run, det_id)
         )
         tcal = 0
 
     pcal = run_info.pos_calibsetid
-    if pcal == '':
+    if pcal == "":
         log.warning(
             "No position calibration found for run {} (detector {})".format(run, det_id)
         )
         pcal = 0
 
     rcal = run_info.rot_calibsetid
-    if rcal == '':
+    if rcal == "":
         log.warning(
             "No rotation calibration found for run {} (detector {})".format(run, det_id)
         )

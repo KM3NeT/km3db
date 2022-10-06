@@ -107,9 +107,16 @@ def write_output_hdf5(outfile, stream, data, groupby):
                 sa = km3db.tools.df_to_sarray(_df)
                 dset_name = stream + "/{}".format(group)
                 if dset_name in h5f:
-                    log.warning("Dataset '{}' already exists, skipping...".format(dset_name))
+                    log.warning(
+                        "Dataset '{}' already exists, skipping...".format(dset_name)
+                    )
                     continue
-                h5f.create_dataset(stream + "/{}".format(group), compression="gzip", compression_opts=3, data=sa)
+                h5f.create_dataset(
+                    stream + "/{}".format(group),
+                    compression="gzip",
+                    compression_opts=3,
+                    data=sa,
+                )
         else:
             sa = km3db.tools.df_to_sarray(df)
             h5f[stream] = sa
@@ -149,7 +156,7 @@ def upload_runsummary(csv_filename, testrun=False, verify=False):
     if not REQUIRED_COLUMNS.issubset(cols):
         log.error(
             "Missing columns: {}.".format(
-                ', '.join(str(c) for c in REQUIRED_COLUMNS - cols)
+                ", ".join(str(c) for c in REQUIRED_COLUMNS - cols)
             )
         )
         return
@@ -164,9 +171,7 @@ def upload_runsummary(csv_filename, testrun=False, verify=False):
         return
 
     print(
-        "Found data for parameters: {}.".format(
-            ', '.join(str(c) for c in parameters)
-        )
+        "Found data for parameters: {}.".format(", ".join(str(c) for c in parameters))
     )
     print("Converting CSV data into JSON")
     if testrun:
@@ -175,13 +180,13 @@ def upload_runsummary(csv_filename, testrun=False, verify=False):
     else:
         prefix = ""
 
-    db = km3db.DBManager()    # noqa
+    db = km3db.DBManager()  # noqa
 
-    det_id_zero_mask = df['det_id'] == 0
+    det_id_zero_mask = df["det_id"] == 0
     if sum(det_id_zero_mask) > 0:
         log.warning("Entries with 'det_id=0' found, removing them.")
         df = df[~det_id_zero_mask]
-    df['det_id'] = df['det_id'].apply(km3db.tools.todetoid)
+    df["det_id"] = df["det_id"].apply(km3db.tools.todetoid)
     print(df)
     data = convert_runsummary_to_json(df, prefix=prefix)
     print("We have {:.3f} MB to upload.".format(len(data) / 1024**2))
@@ -193,8 +198,8 @@ def upload_runsummary(csv_filename, testrun=False, verify=False):
     r = requests.post(
         RUNSUMMARY_URL,
         cookies={"sid": session_cookie},
-        files={'datafile': data},
-        verify=verify
+        files={"datafile": data},
+        verify=verify,
     )
 
     if r.status_code == 200:
@@ -203,7 +208,7 @@ def upload_runsummary(csv_filename, testrun=False, verify=False):
         db_answer = json.loads(r.text)
         for key, value in db_answer.items():
             print("  -> {}: {}".format(key, value))
-        if db_answer['Result'] == 'OK':
+        if db_answer["Result"] == "OK":
             print("Upload successful.")
         else:
             log.critical("Something went wrong.")
@@ -214,21 +219,18 @@ def upload_runsummary(csv_filename, testrun=False, verify=False):
 
 
 def convert_runsummary_to_json(
-    df, comment='Uploaded via km3pipe.StreamDS', prefix='TEST_'
+    df, comment="Uploaded via km3pipe.StreamDS", prefix="TEST_"
 ):
     """Convert a Pandas DataFrame with runsummary to JSON for DB upload"""
     data_field = []
     comment += ", by {}".format(getpass.getuser())
-    for det_id, det_data in df.groupby('det_id'):
+    for det_id, det_data in df.groupby("det_id"):
         runs_field = []
         data_field.append({"DetectorId": det_id, "Runs": runs_field})
 
-        for run, run_data in det_data.groupby('run'):
+        for run, run_data in det_data.groupby("run"):
             parameters_field = []
-            runs_field.append({
-                "Run": int(run),
-                "Parameters": parameters_field
-            })
+            runs_field.append({"Run": int(run), "Parameters": parameters_field})
 
             parameter_dict = {}
             for row in run_data.iterrows():
@@ -237,7 +239,7 @@ def convert_runsummary_to_json(
                         continue
 
                     if parameter_name not in parameter_dict:
-                        entry = {'Name': prefix + parameter_name, 'Data': []}
+                        entry = {"Name": prefix + parameter_name, "Data": []}
                         parameter_dict[parameter_name] = entry
                     data_value = getattr(row[1], parameter_name)
                     try:
@@ -245,17 +247,13 @@ def convert_runsummary_to_json(
                     except ValueError as e:
                         log.critical("Data values has to be floats!")
                         raise ValueError(e)
-                    value = {
-                        'S': str(getattr(row[1], 'source')),
-                        'D': data_value
-                    }
-                    parameter_dict[parameter_name]['Data'].append(value)
+                    value = {"S": str(getattr(row[1], "source")), "D": data_value}
+                    parameter_dict[parameter_name]["Data"].append(value)
             for parameter_data in parameter_dict.values():
                 parameters_field.append(parameter_data)
     data_to_upload = {"Comment": comment, "Data": data_field}
     file_data_to_upload = json.dumps(data_to_upload)
     return file_data_to_upload
-
 
 
 def main():
@@ -265,9 +263,15 @@ def main():
         print_info(args["STREAM"])
     elif args["list"]:
         print_streams()
-    elif args['upload']:
-        upload_runsummary(args['CSV_FILE'], args['-q'], args['-x'])
+    elif args["upload"]:
+        upload_runsummary(args["CSV_FILE"], args["-q"], args["-x"])
     elif args["get"]:
-        get_data(args["STREAM"], args["PARAMETERS"], fmt=args["-f"], outfile=args["-o"], groupby=args["-g"])
+        get_data(
+            args["STREAM"],
+            args["PARAMETERS"],
+            fmt=args["-f"],
+            outfile=args["-o"],
+            groupby=args["-g"],
+        )
     else:
         available_streams()

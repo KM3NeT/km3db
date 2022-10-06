@@ -54,8 +54,8 @@ class DBManager:
                 if retries:
                     log.error(
                         "Access forbidden, your session has expired. "
-                        "Deleting the cookie (%s) and retrying once.", 
-                            COOKIE_FILENAME
+                        "Deleting the cookie (%s) and retrying once.",
+                        COOKIE_FILENAME,
                     )
                     retries -= 1
                 else:
@@ -84,7 +84,11 @@ class DBManager:
                 time.sleep(30)
                 return self.get(url, default=default, retries=retries)
             else:
-                log.error("Giving up... RemoteDisconnected: %s\n" "Target URL: %s", e, target_url)
+                log.error(
+                    "Giving up... RemoteDisconnected: %s\n" "Target URL: %s",
+                    e,
+                    target_url,
+                )
                 return default
         try:
             content = f.read()

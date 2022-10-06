@@ -344,9 +344,11 @@ def df_to_sarray(df):
 
     for dtype in df.dtypes:
         if dtype is np.dtype("O"):
-            log.critical("At least one column contains strings, "
-                            "which are currently not supported in the HDF5 backend. "
-                         "The CSV backend will work fine.")
+            log.critical(
+                "At least one column contains strings, "
+                "which are currently not supported in the HDF5 backend. "
+                "The CSV backend will work fine."
+            )
             exit(1)
 
     cols = df.columns

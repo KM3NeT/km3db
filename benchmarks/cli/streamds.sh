@@ -11,6 +11,4 @@ streamds info detectors
 
 streamds get detectors -o detectors.csv
 
-streamds get detectors -o detectors.h5
-
-streamds get detectors -o detectors.h5 -g CITY
+streamds get toashort detid=D0ORCA010 minrun=13000 maxrun=13000 -g RUN -o KM3NeT_00000100_toashort.h5

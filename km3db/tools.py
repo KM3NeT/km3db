@@ -2,6 +2,8 @@
 from collections import OrderedDict, namedtuple
 import json
 
+import numpy as np
+
 import km3db.compat
 import km3db.core
 import km3db.extras
@@ -326,6 +328,38 @@ def topandas(text):
     return km3db.extras.pandas().read_csv(km3db.compat.StringIO(text), sep="\t")
 
 
+def df_to_sarray(df):
+    """
+    Convert a pandas DataFrame object to a numpy structured array.
+
+    Parameters
+    ----------
+    df : Pandas.DataFrame
+      the data frame to convert
+
+    Returns
+    -------
+    A numpy structured array representation of df.
+    """
+
+    for dtype in df.dtypes:
+        if dtype is np.dtype("O"):
+            log.critical(
+                "At least one column contains strings, "
+                "which are currently not supported in the HDF5 backend. "
+                "The CSV backend will work fine."
+            )
+            exit(1)
+
+    cols = df.columns
+    types = [(cols[i], df[k].dtype.type) for (i, k) in enumerate(cols)]
+    v = df.values
+    arr = np.zeros(v.shape[0], np.dtype(types))
+    for (idx, field) in enumerate(arr.dtype.names):
+        arr[field] = v[:, idx]
+    return arr
+
+
 def show_compass_calibration(clb_upi, version="3"):
     """Show compass calibration data for given `clb_upi`."""
     db = km3db.core.DBManager()
@@ -380,21 +414,21 @@ def detx_for_run(det_id, run, version=2):
         return None
 
     tcal = run_info.t0_calibsetid
-    if tcal == '':
+    if tcal == "":
         log.warning(
             "No time calibration found for run {} (detector {})".format(run, det_id)
         )
         tcal = 0
 
     pcal = run_info.pos_calibsetid
-    if pcal == '':
+    if pcal == "":
         log.warning(
             "No position calibration found for run {} (detector {})".format(run, det_id)
         )
         pcal = 0
 
     rcal = run_info.rot_calibsetid
-    if rcal == '':
+    if rcal == "":
         log.warning(
             "No rotation calibration found for run {} (detector {})".format(run, det_id)
         )

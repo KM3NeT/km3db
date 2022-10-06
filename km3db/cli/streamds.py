@@ -6,7 +6,7 @@ Usage:
     streamds
     streamds list
     streamds info STREAM
-    streamds get [-f FORMAT] STREAM [PARAMETERS...]
+    streamds get [-f FORMAT -o OUTFILE -g COLUMN] STREAM [PARAMETERS...]
     streamds upload [-q -x] CSV_FILE
     streamds (-h | --help)
     streamds --version
@@ -16,6 +16,8 @@ Options:
     PARAMETERS  List of parameters separated by space (e.g. detid=29).
     CSV_FILE    Whitespace separated data for the runsummary tables.
     -f FORMAT   Usually 'txt' for ASCII or 'text' for UTF-8 [default: txt].
+    -o OUTFILE  Output file: supported formats '.csv' and '.h5'.
+    -g COLUMN   Group dataset by the name of the given row when writing HDF5.
     -q          Test run! When uploading, a TEST_ prefix will be added to the data.
     -x          Do not verify the SSL certificate.
     -h --help   Show this screen.
@@ -50,7 +52,7 @@ def print_info(stream):
     sds.help(stream)
 
 
-def get_data(stream, parameters, fmt):
+def get_data(stream, parameters, fmt, outfile=None, groupby=None):
     """Retrieve data for given stream and parameters, or None if not found"""
     sds = km3db.StreamDS()
     if stream not in sds.streams:
@@ -69,12 +71,63 @@ def get_data(stream, parameters, fmt):
             params[key] = value
     data = sds.get(stream, fmt, **params)
     if data is not None:
-        try:
-            print(data)
-        except BrokenPipeError:
-            pass
+        if outfile is not None:
+            write_output(outfile, stream, data, groupby)
+        else:
+            try:
+                print(data)
+            except BrokenPipeError:
+                pass
     else:
         sds.help(stream)
+
+
+def write_output(outfile, stream, data, groupby=None):
+    """Writes the DB output to a file (HDF5 or CSV)"""
+    _, ext = os.path.splitext(outfile)
+
+    if ext == ".h5":
+        write_output_hdf5(outfile, stream, data, groupby=groupby)
+        exit(0)
+    if ext == ".csv":
+        write_output_csv(outfile, stream, data)
+        exit(0)
+
+    log.error("Unsupported filetype with '{}'".format(ext))
+    exit(1)
+
+
+def write_output_hdf5(outfile, stream, data, groupby):
+    """Write DB output to HDF5"""
+    h5py = km3db.extras.h5py()
+    df = km3db.tools.topandas(data)
+    with h5py.File(outfile, "a") as h5f:
+        if groupby is not None:
+            for group, _df in df.groupby(groupby):
+                sa = km3db.tools.df_to_sarray(_df)
+                dset_name = stream + "/{}".format(group)
+                if dset_name in h5f:
+                    log.warning(
+                        "Dataset '{}' already exists, skipping...".format(dset_name)
+                    )
+                    continue
+                h5f.create_dataset(
+                    stream + "/{}".format(group),
+                    compression="gzip",
+                    compression_opts=3,
+                    data=sa,
+                )
+        else:
+            sa = km3db.tools.df_to_sarray(df)
+            h5f[stream] = sa
+    print("Database output written to '{}'.".format(outfile))
+
+
+def write_output_csv(outfile, stream, data):
+    """Write DB output to CSV"""
+    with open(outfile, "w") as fobj:
+        fobj.write(data)
+    print("Database output written to '{}'.".format(outfile))
 
 
 def available_streams():
@@ -103,7 +156,7 @@ def upload_runsummary(csv_filename, testrun=False, verify=False):
     if not REQUIRED_COLUMNS.issubset(cols):
         log.error(
             "Missing columns: {}.".format(
-                ', '.join(str(c) for c in REQUIRED_COLUMNS - cols)
+                ", ".join(str(c) for c in REQUIRED_COLUMNS - cols)
             )
         )
         return
@@ -118,9 +171,7 @@ def upload_runsummary(csv_filename, testrun=False, verify=False):
         return
 
     print(
-        "Found data for parameters: {}.".format(
-            ', '.join(str(c) for c in parameters)
-        )
+        "Found data for parameters: {}.".format(", ".join(str(c) for c in parameters))
     )
     print("Converting CSV data into JSON")
     if testrun:
@@ -129,13 +180,13 @@ def upload_runsummary(csv_filename, testrun=False, verify=False):
     else:
         prefix = ""
 
-    db = km3db.DBManager()    # noqa
+    db = km3db.DBManager()  # noqa
 
-    det_id_zero_mask = df['det_id'] == 0
+    det_id_zero_mask = df["det_id"] == 0
     if sum(det_id_zero_mask) > 0:
         log.warning("Entries with 'det_id=0' found, removing them.")
         df = df[~det_id_zero_mask]
-    df['det_id'] = df['det_id'].apply(km3db.tools.todetoid)
+    df["det_id"] = df["det_id"].apply(km3db.tools.todetoid)
     print(df)
     data = convert_runsummary_to_json(df, prefix=prefix)
     print("We have {:.3f} MB to upload.".format(len(data) / 1024**2))
@@ -147,8 +198,8 @@ def upload_runsummary(csv_filename, testrun=False, verify=False):
     r = requests.post(
         RUNSUMMARY_URL,
         cookies={"sid": session_cookie},
-        files={'datafile': data},
-        verify=verify
+        files={"datafile": data},
+        verify=verify,
     )
 
     if r.status_code == 200:
@@ -157,7 +208,7 @@ def upload_runsummary(csv_filename, testrun=False, verify=False):
         db_answer = json.loads(r.text)
         for key, value in db_answer.items():
             print("  -> {}: {}".format(key, value))
-        if db_answer['Result'] == 'OK':
+        if db_answer["Result"] == "OK":
             print("Upload successful.")
         else:
             log.critical("Something went wrong.")
@@ -168,21 +219,18 @@ def upload_runsummary(csv_filename, testrun=False, verify=False):
 
 
 def convert_runsummary_to_json(
-    df, comment='Uploaded via km3pipe.StreamDS', prefix='TEST_'
+    df, comment="Uploaded via km3pipe.StreamDS", prefix="TEST_"
 ):
     """Convert a Pandas DataFrame with runsummary to JSON for DB upload"""
     data_field = []
     comment += ", by {}".format(getpass.getuser())
-    for det_id, det_data in df.groupby('det_id'):
+    for det_id, det_data in df.groupby("det_id"):
         runs_field = []
         data_field.append({"DetectorId": det_id, "Runs": runs_field})
 
-        for run, run_data in det_data.groupby('run'):
+        for run, run_data in det_data.groupby("run"):
             parameters_field = []
-            runs_field.append({
-                "Run": int(run),
-                "Parameters": parameters_field
-            })
+            runs_field.append({"Run": int(run), "Parameters": parameters_field})
 
             parameter_dict = {}
             for row in run_data.iterrows():
@@ -191,7 +239,7 @@ def convert_runsummary_to_json(
                         continue
 
                     if parameter_name not in parameter_dict:
-                        entry = {'Name': prefix + parameter_name, 'Data': []}
+                        entry = {"Name": prefix + parameter_name, "Data": []}
                         parameter_dict[parameter_name] = entry
                     data_value = getattr(row[1], parameter_name)
                     try:
@@ -199,17 +247,13 @@ def convert_runsummary_to_json(
                     except ValueError as e:
                         log.critical("Data values has to be floats!")
                         raise ValueError(e)
-                    value = {
-                        'S': str(getattr(row[1], 'source')),
-                        'D': data_value
-                    }
-                    parameter_dict[parameter_name]['Data'].append(value)
+                    value = {"S": str(getattr(row[1], "source")), "D": data_value}
+                    parameter_dict[parameter_name]["Data"].append(value)
             for parameter_data in parameter_dict.values():
                 parameters_field.append(parameter_data)
     data_to_upload = {"Comment": comment, "Data": data_field}
     file_data_to_upload = json.dumps(data_to_upload)
     return file_data_to_upload
-
 
 
 def main():
@@ -219,9 +263,15 @@ def main():
         print_info(args["STREAM"])
     elif args["list"]:
         print_streams()
-    elif args['upload']:
-        upload_runsummary(args['CSV_FILE'], args['-q'], args['-x'])
+    elif args["upload"]:
+        upload_runsummary(args["CSV_FILE"], args["-q"], args["-x"])
     elif args["get"]:
-        get_data(args["STREAM"], args["PARAMETERS"], fmt=args["-f"])
+        get_data(
+            args["STREAM"],
+            args["PARAMETERS"],
+            fmt=args["-f"],
+            outfile=args["-o"],
+            groupby=args["-g"],
+        )
     else:
         available_streams()

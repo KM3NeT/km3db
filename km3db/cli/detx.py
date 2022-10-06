@@ -38,10 +38,16 @@ def main():
         return
 
     if args["RUN"] is not None:
-        detx = km3db.tools.detx_for_run(det_id, int(args["RUN"]), version=int(args["-v"]))
+        detx = km3db.tools.detx_for_run(
+            det_id, int(args["RUN"]), version=int(args["-v"])
+        )
     else:
         detx = km3db.tools.detx(
-            det_id, pcal=args["-p"], rcal=args["-r"], tcal=args["-t"], version=int(args["-v"]) 
+            det_id,
+            pcal=args["-p"],
+            rcal=args["-r"],
+            tcal=args["-t"],
+            version=int(args["-v"]),
         )
 
     if detx is None:

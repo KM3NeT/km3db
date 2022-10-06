@@ -2,6 +2,8 @@
 from collections import OrderedDict, namedtuple
 import json
 
+import numpy as np
+
 import km3db.compat
 import km3db.core
 import km3db.extras
@@ -324,6 +326,31 @@ def tonamedtuples(name, text, renamemap=None):
 def topandas(text):
     """Create a DataFrame from database output"""
     return km3db.extras.pandas().read_csv(km3db.compat.StringIO(text), sep="\t")
+
+
+def df_to_sarray(df):
+    """
+    Convert a pandas DataFrame object to a numpy structured array.
+    This is functionally equivalent to but more efificient than
+    np.array(df.to_array())
+
+    Parameters
+    ----------
+    df : Pandas.DataFrame
+      the data frame to convert
+
+    Returns
+    -------
+    A numpy structured array representation of df.
+    """
+
+    cols = df.columns
+    types = [(cols[i], df[k].dtype.type) for (i, k) in enumerate(cols)]
+    v = df.values
+    arr = np.zeros(v.shape[0], np.dtype(types))
+    for (idx, field) in enumerate(arr.dtype.names):
+        arr[field] = v[:, idx]
+    return arr
 
 
 def show_compass_calibration(clb_upi, version="3"):

@@ -14,3 +14,18 @@ def pandas():
         )
     else:
         return pandas
+
+
+def h5py():
+    """Imports and returns ``h5py``."""
+    try:
+        import h5py
+    except ImportError:
+        raise ImportError(
+            "install the 'h5py' package with:\n\n"
+            "    pip install h5py\n\n"
+            "or\n\n"
+            "    conda install h5py"
+        )
+    else:
+        return h5py

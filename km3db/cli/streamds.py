@@ -6,7 +6,7 @@ Usage:
     streamds
     streamds list
     streamds info STREAM
-    streamds get [-f FORMAT] STREAM [PARAMETERS...]
+    streamds get [-f FORMAT -o OUTFILE -g GROUPBY] STREAM [PARAMETERS...]
     streamds upload [-q -x] CSV_FILE
     streamds (-h | --help)
     streamds --version
@@ -16,6 +16,8 @@ Options:
     PARAMETERS  List of parameters separated by space (e.g. detid=29).
     CSV_FILE    Whitespace separated data for the runsummary tables.
     -f FORMAT   Usually 'txt' for ASCII or 'text' for UTF-8 [default: txt].
+    -o OUTFILE  Output file: supported formats '.csv' and '.h5'.
+    -g GROUPBY  Group dataset by the name of the given row when writing HDF5.
     -q          Test run! When uploading, a TEST_ prefix will be added to the data.
     -x          Do not verify the SSL certificate.
     -h --help   Show this screen.
@@ -50,7 +52,7 @@ def print_info(stream):
     sds.help(stream)
 
 
-def get_data(stream, parameters, fmt):
+def get_data(stream, parameters, fmt, outfile=None, groupby=None):
     """Retrieve data for given stream and parameters, or None if not found"""
     sds = km3db.StreamDS()
     if stream not in sds.streams:
@@ -69,12 +71,56 @@ def get_data(stream, parameters, fmt):
             params[key] = value
     data = sds.get(stream, fmt, **params)
     if data is not None:
-        try:
-            print(data)
-        except BrokenPipeError:
-            pass
+        if outfile is not None:
+            write_output(outfile, stream, data, groupby)
+        else:
+            try:
+                print(data)
+            except BrokenPipeError:
+                pass
     else:
         sds.help(stream)
+
+
+def write_output(outfile, stream, data, groupby=None):
+    """Writes the DB output to a file (HDF5 or CSV)"""
+    _, ext = os.path.splitext(outfile)
+
+    if ext == ".h5":
+        write_output_hdf5(outfile, stream, data, groupby=groupby)
+        exit(0)
+    if ext == ".csv":
+        write_output_csv(outfile, stream, data)
+        exit(0)
+
+    log.error("Unsupported filetype with '{}'".format(ext))
+    exit(1)
+
+
+def write_output_hdf5(outfile, stream, data, groupby):
+    """Write DB output to HDF5"""
+    h5py = km3db.extras.h5py()
+    df = km3db.tools.topandas(data)
+    with h5py.File(outfile, "a") as h5f:
+        if groupby is not None:
+            for group, _df in df.groupby(groupby):
+                sa = km3db.tools.df_to_sarray(_df)
+                dset_name = stream + "/{}".format(group)
+                if dset_name in h5f:
+                    log.warning("Dataset '{}' already exists, skipping...".format(dset_name))
+                    continue
+                h5f.create_dataset(stream + "/{}".format(group), compression="gzip", compression_opts=3, data=sa)
+        else:
+            sa = km3db.tools.df_to_sarray(df)
+            h5f[stream] = sa
+    print("Database output written to '{}'.".format(outfile))
+
+
+def write_output_csv(outfile, stream, data):
+    """Write DB output to CSV"""
+    with open(outfile, "w") as fobj:
+        fobj.write(data)
+    print("Database output written to '{}'.".format(outfile))
 
 
 def available_streams():
@@ -222,6 +268,6 @@ def main():
     elif args['upload']:
         upload_runsummary(args['CSV_FILE'], args['-q'], args['-x'])
     elif args["get"]:
-        get_data(args["STREAM"], args["PARAMETERS"], fmt=args["-f"])
+        get_data(args["STREAM"], args["PARAMETERS"], fmt=args["-f"], outfile=args["-o"], groupby=args["-g"])
     else:
         available_streams()

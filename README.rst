@@ -161,7 +161,7 @@ The help output explains all the available functionality of the tool::
       CSV_FILE    Whitespace separated data for the runsummary tables.
       -f FORMAT   Usually 'txt' for ASCII or 'text' for UTF-8 [default: txt].
       -o OUTFILE  Output file: supported formats '.csv' and '.h5'.
-      -g GROUPBY  Group dataset by the name of the given row when writing HDF5.
+      -g COLUMN   Group dataset by the name of the given row when writing HDF5.
       -q          Test run! When uploading, a TEST_ prefix will be added to the data.
       -x          Do not verify the SSL certificate.
       -h --help   Show this screen.
@@ -183,7 +183,14 @@ For example, a list of available detectors::
 
 To write the database output to a file, use the ``-o`` option, e.g.
 ``streamds get detectors -o detectors.csv``. The currently supported
-filetypes are ``.csv`` and ``.h5``.
+filetypes are ``.csv`` and ``.h5``. In case of ``.h5``, the data can
+be grouped by providing ``-g COLUMN``, which will split up the
+output and write distinct HDF5 dataset. It's useful to group large
+datasets by e.g. ``RUN``, however, only numerical datatypes are supported
+currently::
+
+  > streamds get toashort detid=D0ORCA010 minrun=13000 maxrun=13005 -g RUN -o KM3NeT_00000100_toashort.h5
+  Database output written to 'KM3NeT_00000100_toashort.h5'.
 
 
 ``km3db``

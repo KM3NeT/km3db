@@ -331,8 +331,6 @@ def topandas(text):
 def df_to_sarray(df):
     """
     Convert a pandas DataFrame object to a numpy structured array.
-    This is functionally equivalent to but more efificient than
-    np.array(df.to_array())
 
     Parameters
     ----------
@@ -343,6 +341,13 @@ def df_to_sarray(df):
     -------
     A numpy structured array representation of df.
     """
+
+    for dtype in df.dtypes:
+        if dtype is np.dtype("O"):
+            log.critical("At least one column contains strings, "
+                            "which are currently not supported in the HDF5 backend. "
+                         "The CSV backend will work fine.")
+            exit(1)
 
     cols = df.columns
     types = [(cols[i], df[k].dtype.type) for (i, k) in enumerate(cols)]

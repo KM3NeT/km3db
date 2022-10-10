@@ -3,7 +3,6 @@ km3net_testdata>=0.2.7
 matplotlib
 memory_profiler
 mock
-numpy
 numpydoc
 pytest
 pytest-cov

@@ -4,6 +4,10 @@ Unreleased changes
 
 Version 0
 ---------
+0.10.0 / 2022-10-26
+~~~~~~~~~~~~~~~~~~~
+* Added support for uploading runsummary strings
+
 0.9.0 / 2022-10-07
 ~~~~~~~~~~~~~~~~~~
 * Added support for direct HDF5 and CSV output: no shell-piping needed anymore:

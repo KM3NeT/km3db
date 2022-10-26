@@ -37,7 +37,7 @@ log = logging.getLogger("streamds")
 
 RUNSUMMARYNUMBERS_URL = "https://km3netdbweb.in2p3.fr/jsonds/runsummarynumbers/i"
 RUNSUMMARYSTRINGS_URL = "https://km3netdbweb.in2p3.fr/jsonds/runsummarystrings/i"
-RUNSUMMARYSTRINGS_COLUMNS = set(["UUID"])
+RUNSUMMARYSTRINGS_COLUMNS = set(["UUID", "JPP"])
 REQUIRED_COLUMNS = set(["run", "det_id", "source"])
 
 
@@ -206,6 +206,7 @@ def _database_upload(data, verify=False, isrunsummarystrings=False):
 
     print("Uploading the data to the database.")
     url = RUNSUMMARYSTRINGS_URL if isrunsummarystrings else RUNSUMMARYNUMBERS_URL
+    print("URL: {}".format(url))
     r = requests.post(url,
                       cookies={"sid": session_cookie},
                       files={'datafile': data},

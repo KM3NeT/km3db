@@ -189,7 +189,6 @@ def upload_runsummary(csv_filename, testrun=False, verify=False):
         log.warning("Entries with 'det_id=0' found, removing them.")
         df = df[~det_id_zero_mask]
     df["det_id"] = df["det_id"].apply(km3db.tools.todetoid)
-    print(df)
 
     data_runsummarynumbers = convert_runsummary_to_json(
         df[df.columns.difference(RUNSUMMARYSTRINGS_COLUMNS)], prefix=prefix)

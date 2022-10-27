@@ -4,6 +4,11 @@ Unreleased changes
 
 Version 0
 ---------
+0.10.1 / 2022-10-27
+~~~~~~~~~~~~~~~~~~~
+* Rename columns which are not named according to the specs when
+  uploading data to runsummary numbers/strings
+
 0.10.0 / 2022-10-26
 ~~~~~~~~~~~~~~~~~~~
 * Added support for uploading runsummary strings

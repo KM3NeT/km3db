@@ -39,6 +39,7 @@ RUNSUMMARYNUMBERS_URL = "https://km3netdbweb.in2p3.fr/jsonds/runsummarynumbers/i
 RUNSUMMARYSTRINGS_URL = "https://km3netdbweb.in2p3.fr/jsonds/runsummarystrings/i"
 RUNSUMMARYSTRINGS_COLUMNS = set(["UUID", "JPP"])
 REQUIRED_COLUMNS = set(["run", "det_id", "source"])
+COLUMN_MAPPINGS = {"GIT": "source", "detector": "det_id"}
 
 
 def print_streams():
@@ -150,6 +151,13 @@ def upload_runsummary(csv_filename, testrun=False, verify=False):
     except pd.errors.EmptyDataError as e:
         log.error(e)
         return
+
+
+    for fromcol, tocol in COLUMN_MAPPINGS.items():
+        if fromcol in df.columns:
+            log.warn("Renaming column '{}' to '{}'.".format(fromcol, tocol))
+            df[tocol] = df[fromcol]
+            df.drop(columns=fromcol, inplace=True)
 
     cols = set(df.columns)
 

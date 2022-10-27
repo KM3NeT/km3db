@@ -197,7 +197,7 @@ def upload_runsummary(csv_filename, testrun=False, verify=False):
     _database_upload(data_runsummarynumbers, verify)
 
     data_runsummarystrings = convert_runsummary_to_json(
-        df[REQUIRED_COLUMNS.union(RUNSUMMARYSTRINGS_COLUMNS)],
+        df[list(REQUIRED_COLUMNS.union(RUNSUMMARYSTRINGS_COLUMNS))],
         prefix=prefix,
         isrunsummarystrings=True)
     print("We have {:.3f} MB runsummarystrings to upload.".format(

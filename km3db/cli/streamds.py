@@ -33,7 +33,7 @@ import km3db
 import km3db.extras
 from docopt import docopt
 
-log = logging.getLogger("streamds")
+log = km3db.logger.get_logger("streamds")
 
 RUNSUMMARYNUMBERS_URL = "https://km3netdbweb.in2p3.fr/jsonds/runsummarynumbers/i"
 RUNSUMMARYSTRINGS_URL = "https://km3netdbweb.in2p3.fr/jsonds/runsummarystrings/i"

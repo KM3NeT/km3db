@@ -23,8 +23,6 @@ ssl._create_default_https_context = ssl._create_unverified_context
 BASE_URL = "https://km3netdbweb.in2p3.fr"
 COOKIE_FILENAME = os.path.expanduser("~/.km3netdb_cookie")
 SESSION_COOKIES = dict(
-    lyon="_kmcprod_134.158_lyo7783844001343100343mcprod1223user",
-    jupyter="_jupyter-km3net_131.188.161.143_d9fe89a1568a49a5ac03bdf15d93d799",
     gitlab="_gitlab-km3net_131.188_ce0e106433dd4923b522716b23c992c2",
 )
 UTC_TZ = pytz.timezone("UTC")
@@ -189,19 +187,5 @@ class DBManager:
 
 def on_whitelisted_host(name):
     """Check if we are on a whitelisted host"""
-    if name == "lyon":
-        try:
-            hostname = socket.gethostname()
-            ip = socket.gethostbyname(hostname)
-        except socket.gaierror:
-            return False
-        return ip.startswith("134.158.")
-    if name == "jupyter":
-        try:
-            hostname = socket.gethostname()
-            ip = socket.gethostbyname(hostname)
-        except socket.gaierror:
-            return False
-        return ip == socket.gethostbyname("jupyter.km3net.de")
     if name == "gitlab":
         return "GITLAB_CI" in os.environ

@@ -4,6 +4,12 @@ Unreleased changes
 
 Version 0
 ---------
+0.11.0 / 2022-11-24
+~~~~~~~~~~~~~~~~~~~
+* The session cookies for Lyon CC and the old Jupyter server are removed
+  due to the uncontrolled traffic on the database web API. From now on
+  only GitLab CI is whitelisted and you need a personal session cookie
+
 0.10.1 / 2022-10-27
 ~~~~~~~~~~~~~~~~~~~
 * Rename columns which are not named according to the specs when

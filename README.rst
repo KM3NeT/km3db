@@ -24,6 +24,23 @@ and can easily be installed with the ``pip`` command::
 
   pip install km3db
 
+Database Access with Cookies
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The KM3NeT DB credentials should be used to obtain a session cookie which is
+then passed to the database web API for all future requests. The cookie file
+can be stored as a file and the default location is ``~/.km3netdb_cookie``.
+If you want to use a different file, set the ``KM3NET_DB_COOKIE_FILE`` to the
+desired file and each request made with ``km3db`` will use that cookie. You
+can also specify ``KM3NET_DB_COOKIE`` as a string value, which then will be used
+as a session ID cookie. This is useful if you work in environments where you can't
+or don't want to store files.
+
+See the section below how to use the ``km3dbcookie`` command line tool explicity
+to obtain a session cookie from the command line. Notice that cookies are
+automatically handled behind the scenes if you use any of the ``km3db``
+functionality.
+
 Python Classes
 --------------
 

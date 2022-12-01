@@ -3,14 +3,13 @@
 Generate a cookie for the KM3NeT Oracle Web API.
 
 Usage:
-    km3dbcookie [-B | -C] [-o COOKIEFILE]
+    km3dbcookie [-B | -C]
     km3dbcookie (-h | --help)
     km3dbcookie --version
 
 Options:
     -B             Request the cookie for a class B network (12.23.X.Y).
     -C             Request the cookie for a class C network (12.23.45.Y).
-    -o COOKIEFILE  Filepath to store the cookiefile [default: ~/.km3netdb_cookie].
     -h --help   Show this screen.
 
 Example:

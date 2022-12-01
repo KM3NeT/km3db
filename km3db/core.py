@@ -162,8 +162,10 @@ class DBManager:
         if self._network_class is not None:
             if self._network_class == "B":
                 suffix = "&freenetbits=16"
-            if self._network_class == "C":
+            elif self._network_class == "C":
                 suffix = "&freenetbits=8"
+            else:
+                log.error("Unsupported network class '{}'".format(self._network_class))
         target_url = self._login_url + "?usr={0}&pwd={1}&persist=y{2}".format(
             username, password, suffix
         )

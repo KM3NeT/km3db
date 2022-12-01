@@ -14,7 +14,13 @@ Options:
 
 Example:
 
-    km3dbcookie -B
+    $ km3dbcookie -B
+    Please enter your KM3NeT DB username: tgal
+    Password:
+    Cookie saved as '/Users/tamasgal/.km3netdb_cookie'
+    $ cat /Users/tamasgal/.km3netdb_cookie
+    .in2p3.fr	TRUE	/	TRUE	0	sid	_tgal_131.188_70b78042c03a434594b041073484ce23
+
 
 """
 import km3db
@@ -30,3 +36,5 @@ def main():
     else:
         db = km3db.DBManager()
     db.request_session_cookie()
+
+    print("Cookie saved as '{}'".format(km3db.core.COOKIE_FILENAME))

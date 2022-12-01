@@ -4,6 +4,11 @@ Unreleased changes
 
 Version 0
 ---------
+0.11.1 / 2022-12-01
+~~~~~~~~~~~~~~~~~~~
+* Adds preliminary support for class B and class C cookies via
+  a new ``km3netdbcookie`` command line utility
+
 0.11.0 / 2022-11-24
 ~~~~~~~~~~~~~~~~~~~
 * The session cookies for Lyon CC and the old Jupyter server are removed

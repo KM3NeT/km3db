@@ -35,9 +35,10 @@ class AuthenticationError(Exception):
 
 
 class DBManager:
-    def __init__(self, url=None):
+    def __init__(self, url=None, network_class=None):
         self._db_url = BASE_URL if url is None else url
         self._login_url = self._db_url + "/home.htm"
+        self._network_class = network_class
         self._session_cookie = None
         self._opener = None
 
@@ -115,21 +116,35 @@ class DBManager:
 
     def _request_session_cookie(self):
         """Request cookie for permanent session."""
-        # Next, try the configuration file according to
-        # the specification described here:
-        # https://wiki.km3net.de/index.php/Database#Scripting_access
-        if os.path.exists(COOKIE_FILENAME):
-            log.info("Using cookie from %s", COOKIE_FILENAME)
-            with open(COOKIE_FILENAME) as fobj:
-                content = fobj.read()
-            return content.split()[-1].strip()
-
-        # The cookie can also be set via the environment
+        # The cookie can be specified via the environment
         cookie = os.getenv("KM3NET_DB_COOKIE")
         if cookie is not None:
             log.info("Using cookie from env ($KM3NET_DB_COOKIE)")
             return cookie
 
+        # The cookie file can also be specified via the environment
+        cookiefile = os.getenv("KM3NET_DB_COOKIE_FILE")
+        if cookiefile is not None:
+            log.info("Using cookie file from env ($KM3NET_DB_COOKIE_FILE)")
+            with open(cookiefile) as fobj:
+                content = fobj.read()
+            return content.split()[-1].strip()
+
+        # Next, try the configuration file according to
+        # the specification described here:
+        # https://wiki.km3net.de/index.php/Database#Scripting_access
+        if os.path.exists(COOKIE_FILENAME):
+            log.info("Using cookie from standard location %s", COOKIE_FILENAME)
+            # TODO: code duplication, see above
+            with open(COOKIE_FILENAME) as fobj:
+                content = fobj.read()
+            return content.split()[-1].strip()
+
+        # If everything fails, ask the user for credentials to generate a cookie
+        self.request_session_cookie()
+
+    def request_session_cookie(self):
+        """Request a cookie using credentials"""
         username = os.getenv("KM3NET_DB_USERNAME")
         password = os.getenv("KM3NET_DB_PASSWORD")
 
@@ -143,8 +158,16 @@ class DBManager:
                 "$KM3NET_DB_PASSWORD)"
             )
 
-        target_url = self._login_url + "?usr={0}&pwd={1}&persist=y".format(
-            username, password
+        suffix = ""
+        if self._network_class is not None:
+            if self._network_class == "B":
+                suffix = "&freenetbits=16"
+            elif self._network_class == "C":
+                suffix = "&freenetbits=8"
+            else:
+                log.error("Unsupported network class '{}'".format(self._network_class))
+        target_url = self._login_url + "?usr={0}&pwd={1}&persist=y{2}".format(
+            username, password, suffix
         )
         cookie = km3db.compat.urlopen(target_url).read()
 

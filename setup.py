@@ -46,6 +46,7 @@ setup(
     entry_points={
         "console_scripts": [
             "km3db=km3db.cli.km3db:main",
+            "km3dbcookie=km3db.cli.km3dbcookie:main",
             "streamds=km3db.cli.streamds:main",
             "detx=km3db.cli.detx:main",
             "runtable=km3db.cli.runtable:main",

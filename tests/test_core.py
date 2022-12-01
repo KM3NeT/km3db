@@ -1,5 +1,6 @@
 import unittest
 import mock
+import tempfile
 
 from km3db import DBManager
 from km3db.core import on_whitelisted_host, SESSION_COOKIES, AuthenticationError
@@ -32,17 +33,23 @@ class TestKM3DB(unittest.TestCase):
             def read(self):
                 return b"foo"
 
+        def getenv_mock_side_effect(key):
+            if key == "KM3NET_DB_USERNAME":
+                return "username"
+            if key == "KM3NET_DB_PASSWORD":
+                return "password"
+            return None
+
         urlopen_mock.return_value = StreamMock()
         exists_mock.return_value = False
-        getenv_mock.side_effect = [None, "username", "password"]
+        getenv_mock.side_effect = getenv_mock_side_effect
 
         db = DBManager()
         with self.assertRaises(AuthenticationError):
-            cookie = db._request_session_cookie()
+            cookie = db.request_session_cookie()
 
         getenv_mock.assert_has_calls(
             [
-                mock.call("KM3NET_DB_COOKIE"),
                 mock.call("KM3NET_DB_USERNAME"),
                 mock.call("KM3NET_DB_PASSWORD"),
             ]
@@ -63,8 +70,13 @@ class TestKM3DB(unittest.TestCase):
 
         the_cookie = "namnam"
 
+        def getenv_mock_side_effect(key):
+            if key == "KM3NET_DB_COOKIE":
+                return the_cookie
+            return None
+
         exists_mock.return_value = False
-        getenv_mock.side_effect = [the_cookie]
+        getenv_mock.side_effect = getenv_mock_side_effect
 
         db = DBManager()
 
@@ -77,3 +89,37 @@ class TestKM3DB(unittest.TestCase):
         )
 
         assert the_cookie == cookie
+
+    @mock.patch("os.path.exists")
+    @mock.patch("os.getenv")
+    def test_request_session_cookie_from_env_with_cookie_file(
+        self, getenv_mock, exists_mock
+    ):
+        class StreamMock:
+            def read(self):
+                return b"foo"
+
+        f = tempfile.NamedTemporaryFile(delete=False)
+        f.write(b"ignoredstring namnam")
+        f.close()
+
+        def getenv_mock_side_effect(key):
+            if key == "KM3NET_DB_COOKIE_FILE":
+                return f.name
+            return None
+
+        exists_mock.return_value = False
+        getenv_mock.side_effect = getenv_mock_side_effect
+
+        db = DBManager()
+
+        cookie = db._request_session_cookie()
+
+        getenv_mock.assert_has_calls(
+            [
+                mock.call("KM3NET_DB_COOKIE_FILE"),
+            ]
+        )
+
+        assert "namnam" == cookie
+

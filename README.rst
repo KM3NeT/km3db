@@ -109,6 +109,34 @@ Command Line Utilities
 
 The following command line utilities will be accessible after installing ``km3db``.
 
+``km3dbcookie``
+~~~~~~~~~~~~~~~~~~
+
+The ``km3netdbcookie`` command can be used to obtain a session cookie using the
+KM3NeT DB credentials::
+
+    $ km3dbcookie -h
+    Generate a cookie for the KM3NeT Oracle Web API.
+
+    Usage:
+        km3dbcookie [-B | -C]
+        km3dbcookie (-h | --help)
+        km3dbcookie --version
+
+    Options:
+        -B             Request the cookie for a class B network (12.23.X.Y).
+        -C             Request the cookie for a class C network (12.23.45.Y).
+        -h --help   Show this screen.
+
+    Example:
+
+        $ km3dbcookie -B
+        Please enter your KM3NeT DB username: tgal
+        Password:
+        Cookie saved as '/Users/tamasgal/.km3netdb_cookie'
+        $ cat /Users/tamasgal/.km3netdb_cookie
+        .in2p3.fr	TRUE	/	TRUE	0	sid	_tgal_131.188_70b78042c03a434594b041073484ce23
+
 ``detx``
 ~~~~~~~~~~~~
 

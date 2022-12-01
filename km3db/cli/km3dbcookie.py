@@ -31,4 +31,4 @@ def main():
         db = km3db.DBManager(network_class="C")
     else:
         db = km3db.DBManager()
-    db.session_cookie
+    db.request_session_cookie()

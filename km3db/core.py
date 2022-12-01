@@ -116,21 +116,35 @@ class DBManager:
 
     def _request_session_cookie(self):
         """Request cookie for permanent session."""
-        # Next, try the configuration file according to
-        # the specification described here:
-        # https://wiki.km3net.de/index.php/Database#Scripting_access
-        if os.path.exists(COOKIE_FILENAME):
-            log.info("Using cookie from %s", COOKIE_FILENAME)
-            with open(COOKIE_FILENAME) as fobj:
-                content = fobj.read()
-            return content.split()[-1].strip()
-
-        # The cookie can also be set via the environment
+        # The cookie can be specified via the environment
         cookie = os.getenv("KM3NET_DB_COOKIE")
         if cookie is not None:
             log.info("Using cookie from env ($KM3NET_DB_COOKIE)")
             return cookie
 
+        # The cookie file can also be specified via the environment
+        cookiefile = os.getenv("KM3NET_DB_COOKIE_FILE")
+        if cookiefile is not None:
+            log.info("Using cookie file from env ($KM3NET_DB_COOKIE_FILE)")
+            with open(cookiefile) as fobj:
+                content = fobj.read()
+            return content.split()[-1].strip()
+
+        # Next, try the configuration file according to
+        # the specification described here:
+        # https://wiki.km3net.de/index.php/Database#Scripting_access
+        if os.path.exists(COOKIE_FILENAME):
+            log.info("Using cookie from standard location %s", COOKIE_FILENAME)
+            # TODO: code duplication, see above
+            with open(COOKIE_FILENAME) as fobj:
+                content = fobj.read()
+            return content.split()[-1].strip()
+
+        # If everything fails, ask the user for credentials to generate a cookie
+        self.request_session_cookie()
+
+    def request_session_cookie(self):
+        """Request a cookie using credentials"""
         username = os.getenv("KM3NET_DB_USERNAME")
         password = os.getenv("KM3NET_DB_PASSWORD")
 

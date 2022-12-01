@@ -35,9 +35,10 @@ class AuthenticationError(Exception):
 
 
 class DBManager:
-    def __init__(self, url=None):
+    def __init__(self, url=None, network_class=None):
         self._db_url = BASE_URL if url is None else url
         self._login_url = self._db_url + "/home.htm"
+        self._network_class = network_class
         self._session_cookie = None
         self._opener = None
 
@@ -143,8 +144,14 @@ class DBManager:
                 "$KM3NET_DB_PASSWORD)"
             )
 
-        target_url = self._login_url + "?usr={0}&pwd={1}&persist=y".format(
-            username, password
+        suffix = ""
+        if self._network_class is not None:
+            if self._network_class == "B":
+                suffix = "&freenetbits=16"
+            if self._network_class == "C":
+                suffix = "&freenetbits=8"
+        target_url = self._login_url + "?usr={0}&pwd={1}&persist=y{2}".format(
+            username, password, suffix
         )
         cookie = km3db.compat.urlopen(target_url).read()
 

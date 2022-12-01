@@ -23,7 +23,6 @@ from docopt import docopt
 
 def main():
     args = docopt(__doc__, version=km3db.version)
-    print(args)
     if args["-B"]:
         db = km3db.DBManager(network_class="B")
     elif args["-C"]:

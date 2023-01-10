@@ -141,7 +141,7 @@ class DBManager:
             return content.split()[-1].strip()
 
         # If everything fails, ask the user for credentials to generate a cookie
-        self.request_session_cookie()
+        return self.request_session_cookie()
 
     def request_session_cookie(self):
         """Request a cookie using credentials"""

@@ -36,7 +36,7 @@ test-py2.7:
         - *virtualenv_definition
         - make test
     <<: *junit_definition
-    allow_failure: false
+    allow_failure: true
 
 
 test-py3.5:

@@ -64,9 +64,10 @@ def get_data(stream, parameters, fmt, outfile=None, groupby=None):
     if parameters:
         for parameter in parameters:
             if "=" not in parameter:
-                log.error("Invalid parameter syntax '{}'\n"
-                          "The correct syntax is 'parameter=value'".format(
-                              parameter))
+                log.error(
+                    "Invalid parameter syntax '{}'\n"
+                    "The correct syntax is 'parameter=value'".format(parameter)
+                )
                 continue
             key, value = parameter.split("=")
             params[key] = value
@@ -152,7 +153,6 @@ def upload_runsummary(csv_filename, testrun=False, verify=False):
         log.error(e)
         return
 
-
     for fromcol, tocol in COLUMN_MAPPINGS.items():
         if fromcol in df.columns:
             log.warn("Renaming column '{}' to '{}'.".format(fromcol, tocol))
@@ -162,8 +162,11 @@ def upload_runsummary(csv_filename, testrun=False, verify=False):
     cols = set(df.columns)
 
     if not REQUIRED_COLUMNS.issubset(cols):
-        log.error("Missing columns: {}.".format(', '.join(
-            str(c) for c in REQUIRED_COLUMNS - cols)))
+        log.error(
+            "Missing columns: {}.".format(
+                ", ".join(str(c) for c in REQUIRED_COLUMNS - cols)
+            )
+        )
         return
 
     parameters = cols - REQUIRED_COLUMNS
@@ -175,8 +178,9 @@ def upload_runsummary(csv_filename, testrun=False, verify=False):
         log.critical("Empty dataset.")
         return
 
-    print("Found data for parameters: {}.".format(', '.join(
-        str(c) for c in parameters)))
+    print(
+        "Found data for parameters: {}.".format(", ".join(str(c) for c in parameters))
+    )
     print("Converting CSV data into JSON")
     if testrun:
         log.warn("Test run: adding 'TEST_' prefix to parameter names")
@@ -184,24 +188,32 @@ def upload_runsummary(csv_filename, testrun=False, verify=False):
     else:
         prefix = ""
 
-    det_id_zero_mask = df['det_id'] == 0
+    det_id_zero_mask = df["det_id"] == 0
     if sum(det_id_zero_mask) > 0:
         log.warning("Entries with 'det_id=0' found, removing them.")
         df = df[~det_id_zero_mask]
     df["det_id"] = df["det_id"].apply(km3db.tools.todetoid)
 
     data_runsummarynumbers = convert_runsummary_to_json(
-        df[df.columns.difference(RUNSUMMARYSTRINGS_COLUMNS)], prefix=prefix)
-    print("We have {:.3f} MB runsummarynumbers to upload.".format(
-        len(data_runsummarynumbers) / 1024**2))
+        df[df.columns.difference(RUNSUMMARYSTRINGS_COLUMNS)], prefix=prefix
+    )
+    print(
+        "We have {:.3f} MB runsummarynumbers to upload.".format(
+            len(data_runsummarynumbers) / 1024**2
+        )
+    )
     _database_upload(data_runsummarynumbers, verify)
 
     data_runsummarystrings = convert_runsummary_to_json(
         df[list(REQUIRED_COLUMNS.union(RUNSUMMARYSTRINGS_COLUMNS))],
         prefix=prefix,
-        isrunsummarystrings=True)
-    print("We have {:.3f} MB runsummarystrings to upload.".format(
-        len(data_runsummarystrings) / 1024**2))
+        isrunsummarystrings=True,
+    )
+    print(
+        "We have {:.3f} MB runsummarystrings to upload.".format(
+            len(data_runsummarystrings) / 1024**2
+        )
+    )
     _database_upload(data_runsummarystrings, verify, isrunsummarystrings=True)
 
 
@@ -214,10 +226,9 @@ def _database_upload(data, verify=False, isrunsummarystrings=False):
     print("Uploading the data to the database.")
     url = RUNSUMMARYSTRINGS_URL if isrunsummarystrings else RUNSUMMARYNUMBERS_URL
     print("URL: {}".format(url))
-    r = requests.post(url,
-                      cookies={"sid": session_cookie},
-                      files={'datafile': data},
-                      verify=verify)
+    r = requests.post(
+        url, cookies={"sid": session_cookie}, files={"datafile": data}, verify=verify
+    )
 
     if r.status_code == 200:
         log.debug("POST request status code: {}".format(r.status_code))
@@ -235,10 +246,12 @@ def _database_upload(data, verify=False, isrunsummarystrings=False):
         return
 
 
-def convert_runsummary_to_json(df,
-                               comment='Uploaded via km3pipe.StreamDS',
-                               prefix='TEST_',
-                               isrunsummarystrings=False):
+def convert_runsummary_to_json(
+    df,
+    comment="Uploaded via km3pipe.StreamDS",
+    prefix="TEST_",
+    isrunsummarystrings=False,
+):
     """Convert a Pandas DataFrame with runsummary to JSON for DB upload"""
     data_field = []
     comment += ", by {}".format(getpass.getuser())
@@ -268,11 +281,8 @@ def convert_runsummary_to_json(df,
                             raise ValueError(e)
                     else:
                         data_value = str(data_value)
-                    value = {
-                        'S': str(getattr(row[1], 'source')),
-                        'D': data_value
-                    }
-                    parameter_dict[parameter_name]['Data'].append(value)
+                    value = {"S": str(getattr(row[1], "source")), "D": data_value}
+                    parameter_dict[parameter_name]["Data"].append(value)
             for parameter_data in parameter_dict.values():
                 parameters_field.append(parameter_data)
     data_to_upload = {"Comment": comment, "Data": data_field}

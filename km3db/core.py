@@ -10,15 +10,16 @@ import ssl
 import getpass
 import os
 import re
-import pytz
+from urllib.error import URLError, HTTPError
+from http.client import IncompleteRead, RemoteDisconnected
 import socket
+import pytz
 import time
+from urllib.parse import unquote
+import urllib.request
 
 from km3db.logger import log
-import km3db.compat
 
-# Ignore invalid certificate error
-ssl._create_default_https_context = ssl._create_unverified_context
 
 BASE_URL = "https://km3netdbweb.in2p3.fr"
 COOKIE_FILENAME = os.path.expanduser("~/.km3netdb_cookie")
@@ -28,6 +29,20 @@ SESSION_COOKIES = dict(
 UTC_TZ = pytz.timezone("UTC")
 
 _cookie_sid_pattern = re.compile(r"_[a-z0-9-]+_(\d{1,3}.){1,3}\d{1,3}_[a-z0-9]+")
+
+# Ignore invalid certificate error
+ssl._create_default_https_context = ssl._create_unverified_context
+
+original_getaddrinfo = socket.getaddrinfo
+
+
+def ipv4_forced_getaddrinfo(*args, **kwargs):
+    responses = original_getaddrinfo(*args, **kwargs)
+    return [res for res in responses if res[0] == socket.AF_INET]
+
+
+# Monkey patch to force IPv4
+socket.getaddrinfo = ipv4_forced_getaddrinfo
 
 
 class AuthenticationError(Exception):
@@ -44,11 +59,11 @@ class DBManager:
 
     def get(self, url, default=None, retries=10):
         "Get HTML content"
-        target_url = self._db_url + "/" + km3db.compat.unquote(url)
+        target_url = self._db_url + "/" + unquote(url)
         log.debug("Accessing %s", target_url)
         try:
             f = self.opener.open(target_url)
-        except km3db.compat.HTTPError as e:
+        except HTTPError as e:
             if e.code == 403:
                 if retries:
                     log.error(
@@ -67,7 +82,7 @@ class DBManager:
                 return self.get(url, default=default, retries=retries)
             log.error("HTTP error: %s\n" "Target URL: %s", e, target_url)
             return default
-        except km3db.compat.URLError as e:
+        except URLError as e:
             if retries:
                 retries -= 1
                 log.error("URLError '%s', retrying in 30 seconds.", e)
@@ -76,7 +91,7 @@ class DBManager:
             else:
                 log.error("Giving up... URLError: %s\n" "Target URL: %s", e, target_url)
                 return default
-        except km3db.compat.RemoteDisconnected as e:
+        except RemoteDisconnected as e:
             if retries:
                 retries -= 1
                 log.error("RemoteDisconnected '%s', retrying in 30 seconds.", e)
@@ -91,7 +106,7 @@ class DBManager:
                 return default
         try:
             content = f.read()
-        except km3db.compat.IncompleteRead as icread:
+        except IncompleteRead as icread:
             log.error("Incomplete data received from the DB.")
             content = icread.partial
         log.debug("Got {0} bytes of data.".format(len(content)))
@@ -150,7 +165,7 @@ class DBManager:
 
         if username is None or password is None:
             # Last resort: we ask interactively
-            username = km3db.compat.user_input("Please enter your KM3NeT DB username: ")
+            username = input("Please enter your KM3NeT DB username: ")
             password = getpass.getpass("Password: ")
         else:
             log.info(
@@ -169,7 +184,7 @@ class DBManager:
         target_url = self._login_url + "?usr={0}&pwd={1}&persist=y{2}".format(
             username, password, suffix
         )
-        cookie = km3db.compat.urlopen(target_url).read()
+        cookie = urllib.request.urlopen(target_url).read()
 
         # Unicode madness
         try:
@@ -195,7 +210,7 @@ class DBManager:
         "A reusable connection manager"
         if self._opener is None:
             log.debug("Creating connection handler")
-            opener = km3db.compat.build_opener()
+            opener = urllib.request.build_opener()
             cookie = self.session_cookie
             if cookie is None:
                 log.critical("Could not connect to database.")

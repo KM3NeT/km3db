@@ -4,7 +4,6 @@ import tempfile
 
 from km3db import DBManager
 from km3db.core import on_whitelisted_host, SESSION_COOKIES, AuthenticationError
-import km3db.compat
 
 
 class TestKM3DB(unittest.TestCase):
@@ -25,7 +24,7 @@ class TestKM3DB(unittest.TestCase):
 
     @mock.patch("os.path.exists")
     @mock.patch("os.getenv")
-    @mock.patch("km3db.compat.urlopen")
+    @mock.patch("urllib.request.urlopen")
     def test_request_session_cookie_from_env_with_credentials(
         self, urlopen_mock, getenv_mock, exists_mock
     ):
@@ -122,4 +121,3 @@ class TestKM3DB(unittest.TestCase):
         )
 
         assert "namnam" == cookie
-

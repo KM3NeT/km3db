@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 from collections import OrderedDict, namedtuple
+from functools import wraps
+import io
 import json
 
 import numpy as np
 
-import km3db.compat
 import km3db.core
 import km3db.extras
 from km3db.logger import log
@@ -244,7 +245,21 @@ class CLBMap:
         self._by[by] = data
 
 
-@km3db.compat.lru_cache
+def lru_cache(func):
+    """Poor mans lru_cache for compatiblity"""
+    cache = {}
+
+    @wraps(func)
+    def wrapper(*args):
+        key = tuple(args)
+        if key not in cache:
+            cache[key] = func(*args)
+        return cache[key]
+
+    return wrapper
+
+
+@lru_cache
 def clbupi2compassupi(clb_upi):
     """Return Compass UPI from CLB UPI."""
     sds = StreamDS(container="nt")
@@ -258,7 +273,7 @@ def clbupi2compassupi(clb_upi):
     return compass_upis[0]
 
 
-@km3db.compat.lru_cache
+@lru_cache
 def todetoid(det_id):
     """Convert det OID (e.g. D_ORCA006) to det ID (e.g. 49)
 
@@ -273,7 +288,7 @@ def todetoid(det_id):
     log.error("Could not convert det ID '{}' to OID".format(det_id))
 
 
-@km3db.compat.lru_cache
+@lru_cache
 def todetid(det_oid):
     """Convert det ID (e.g. 49) to det OID (e.g. D_ORCA006)
 
@@ -325,7 +340,7 @@ def tonamedtuples(name, text, renamemap=None):
 
 def topandas(text):
     """Create a DataFrame from database output"""
-    return km3db.extras.pandas().read_csv(km3db.compat.StringIO(text), sep="\t")
+    return km3db.extras.pandas().read_csv(io.StringIO(text), sep="\t")
 
 
 def df_to_sarray(df):
@@ -377,7 +392,7 @@ def show_compass_calibration(clb_upi, version="3"):
     import xml.etree.ElementTree as ET
 
     try:
-        root = ET.parse(km3db.compat.StringIO(content)).getroot()
+        root = ET.parse(io.StringIO(content)).getroot()
     except ET.ParseError:
         print("No calibration data found")
     else:

@@ -4,6 +4,11 @@ Unreleased changes
 
 Version 0
 ---------
+0.11.2 / 2023-01-10
+~~~~~~~~~~~~~~~~~~~
+* Fixed a bug where the cookie is not handled correctly on first session
+  after typing in the username and password
+
 0.11.1 / 2022-12-01
 ~~~~~~~~~~~~~~~~~~~
 * Adds preliminary support for class B and class C cookies via

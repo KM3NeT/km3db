@@ -29,16 +29,6 @@ stages:
         junit: "reports/junit*.xml"
 
 
-test-py2.7:
-    image: docker.km3net.de/base/python:2
-    stage: test
-    script:
-        - *virtualenv_definition
-        - make test
-    <<: *junit_definition
-    allow_failure: true
-
-
 test-py3.5:
     image: docker.km3net.de/base/python:3.5
     stage: test

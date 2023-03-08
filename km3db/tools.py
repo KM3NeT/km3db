@@ -279,13 +279,17 @@ def todetoid(det_id):
 
     If a det OID is provided it will simple be returned.
     """
-    if isinstance(det_id, str):
+    try:
+        det_id = int(det_id)
+    except ValueError:
+        # assume it's an OID
         return det_id
+
     detectors = StreamDS(container="nt").get("detectors")
     for detector in detectors:
         if detector.serialnumber == det_id:
             return detector.oid
-    log.error("Could not convert det ID '{}' to OID".format(det_id))
+    log.error("No detector with det ID '{}' found to look up its OID".format(det_id))
 
 
 @lru_cache

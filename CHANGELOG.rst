@@ -4,6 +4,11 @@ Unreleased changes
 
 Version 0
 ---------
+0.11.3 / 2023-03-08
+~~~~~~~~~~~~~~~~~~~
+* Fixed the `wtd` command-line tool which failed to look up a DOM for a
+  serial numbers
+
 0.11.2 / 2023-01-10
 ~~~~~~~~~~~~~~~~~~~
 * Fixed a bug where the cookie is not handled correctly on first session

@@ -21,6 +21,68 @@ except ImportError:
     SKIP_SIGNATURE_HINTS = True
 
 
+class APIv2:
+    _api_endpoint = "apiv2/"
+
+    def __init__(self, url=None, container=None):
+        self._db = km3db.core.DBManager(url=url)
+        self._endpoints = None
+        self._update_endpoints()
+
+    def __getattr__(self, attr, **kwargs):
+        """Magic getter to select a specific stream"""
+        if attr not in self.endpoints:
+            raise AttributeError
+
+
+        def func(**kwargs):
+            url = f"{attr}/s/" + "&".join(f"{k}={v}" for k, v in kwargs)
+            return self._get(url)
+
+        func.__doc__ = self.endpoints["attr"]["Description"]
+
+        if not SKIP_SIGNATURE_HINTS:
+            sig_dict = OrderedDict()
+            for sel in stream.mandatory_selectors.split(","):
+                if sel == "-":
+                    continue
+                sig_dict[Parameter(sel, Parameter.POSITIONAL_OR_KEYWORD)] = None
+            for sel in stream.optional_selectors.split(","):
+                if sel == "-":
+                    continue
+                sig_dict[Parameter(sel, Parameter.KEYWORD_ONLY)] = None
+            func.__signature__ = Signature(parameters=sig_dict)
+
+        return func
+
+    @property
+    def endpoints(self):
+        return {e["Name"]:e for e in self._endpoints}
+
+    def _update_endpoints(self):
+        """Update the list of available endpoints"""
+        self._endpoints = self._get()
+
+    def _get(self, url="", default=None):
+        """Return the data for a given APIv2 endpoint. Does not raise."""
+        try:
+            response = json.loads(self._db.get(f"{self._api_endpoint}{url}"))
+        except json.JSONDecodeError:
+            log.error("Invalid JSON data received from the DB")
+            return default
+        if not self._validate(response):
+            return default
+        return response["Data"]
+
+    def _validate(self, response):
+        """Returns True if the DB response is OK, False otherwise."""
+        err = response["Error"]
+        if err["Code"] != "OK":
+            log.error("Error from the DB ({}): {} (arguments: {})".format(err["Code"], err["Message"], err["Arguments"]))
+            return False
+        return True
+
+
 class StreamDS:
     """Access to the streamds data stored in the KM3NeT database.
 

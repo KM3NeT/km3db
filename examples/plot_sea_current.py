@@ -195,7 +195,7 @@ print(df)
 # let's use some pandas magic, to group the measurement per run.
 
 
-df_runs = df.groupby("run_id").mean()
+df_runs = df.groupby("run_id").mean(numeric_only=True)
 
 # the averaging process doesn't work for the angles, we therefor have
 # to recompute the direction from the X and Y component of speed:

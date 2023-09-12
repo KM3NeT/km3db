@@ -56,8 +56,8 @@ print(sds.detectors(serialnumber=49))
 # the detector stream.  Let's look at the list of run for this
 # configuration:
 
-# Take the last detector config for ARCA
-det = sds.detectors(city="Italy").iloc[-1]
+# Get ARCA21 detector
+det = sds.detectors(city="Italy", serialnumber=133).iloc[0]
 print(det)
 
 runs = sds.runs(detid=det["OID"])

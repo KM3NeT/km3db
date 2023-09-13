@@ -4,6 +4,10 @@ Unreleased changes
 
 Version 0
 ---------
+0.12.0 / 2023-09-13
+~~~~~~~~~~~~~~~~~~~
+* added `DBManager.username` field to get access to the username
+
 0.11.3 / 2023-03-08
 ~~~~~~~~~~~~~~~~~~~
 * Fixed the `wtd` command-line tool which failed to look up a DOM for a

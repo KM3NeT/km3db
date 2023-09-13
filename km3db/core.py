@@ -56,6 +56,7 @@ class DBManager:
         self._network_class = network_class
         self._session_cookie = None
         self._opener = None
+        self._username = None
 
     def get(self, url, default=None, retries=10):
         "Get HTML content"
@@ -221,6 +222,12 @@ class DBManager:
         else:
             log.debug("Reusing connection manager")
         return self._opener
+
+    @property
+    def username(self):
+        if self._username is None:
+            self._username = self.session_cookie.split("_")[1]
+        return self._username
 
 
 def on_whitelisted_host(name):

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from collections import OrderedDict, namedtuple
 from functools import wraps
+from inspect import Parameter, Signature
 import io
 import json
 
@@ -9,16 +10,6 @@ import numpy as np
 import km3db.core
 import km3db.extras
 from km3db.logger import log
-
-
-try:
-    # Python 3.5+
-    from inspect import Signature, Parameter
-
-    SKIP_SIGNATURE_HINTS = False
-except ImportError:
-    # Python 2.7
-    SKIP_SIGNATURE_HINTS = True
 
 
 class APIv2:
@@ -32,26 +23,24 @@ class APIv2:
     def __getattr__(self, attr, **kwargs):
         """Magic getter to select a specific stream"""
         if attr not in self.endpoints:
-            raise AttributeError
+            raise AttributeError(f"'{attr}' is not a valid selector. Please use one of these: {', '.join(self.endpoints.keys())}")
 
 
         def func(**kwargs):
-            url = f"{attr}/s/" + "&".join(f"{k}={v}" for k, v in kwargs)
+            url = f"{attr}/s?" + "&".join(f"{k}={v}" for k, v in kwargs.items())
             return self._get(url)
 
-        func.__doc__ = self.endpoints["attr"]["Description"]
+        func.__doc__ = self.endpoints[attr]["Description"]
 
-        if not SKIP_SIGNATURE_HINTS:
-            sig_dict = OrderedDict()
-            for sel in stream.mandatory_selectors.split(","):
-                if sel == "-":
-                    continue
-                sig_dict[Parameter(sel, Parameter.POSITIONAL_OR_KEYWORD)] = None
-            for sel in stream.optional_selectors.split(","):
-                if sel == "-":
-                    continue
-                sig_dict[Parameter(sel, Parameter.KEYWORD_ONLY)] = None
-            func.__signature__ = Signature(parameters=sig_dict)
+        # TODO: schema not used yet
+        # schema = _extract_schema(self.endpoints[attr]["Schema"])
+        selectors = _extract_selectors(self.endpoints[attr]["Selectors"])
+
+        sig_dict = OrderedDict()
+        for sel in selectors.keys():
+            sig_dict[Parameter(sel, Parameter.KEYWORD_ONLY)] = None
+
+        func.__signature__ = Signature(parameters=sig_dict)
 
         return func
 
@@ -63,10 +52,11 @@ class APIv2:
         """Update the list of available endpoints"""
         self._endpoints = self._get()
 
-    def _get(self, url="", default=None):
+    def _get(self, url="", default=None, **kwargs):
         """Return the data for a given APIv2 endpoint. Does not raise."""
         try:
-            response = json.loads(self._db.get(f"{self._api_endpoint}{url}"))
+            final_url = f"{self._api_endpoint}{url}"
+            response = json.loads(self._db.get(final_url))
         except json.JSONDecodeError:
             log.error("Invalid JSON data received from the DB")
             return default
@@ -81,6 +71,21 @@ class APIv2:
             log.error("Error from the DB ({}): {} (arguments: {})".format(err["Code"], err["Message"], err["Arguments"]))
             return False
         return True
+
+
+def _extract_selectors(raw_strings):
+    """Creates a dictionary from the raw DB output (list of strings).
+
+    A string like "OperationId -> Filters by OperationId" will become an entry
+    in the resulting dictionary with "OperationId" as key and "Filters by
+    OperationId" as value.
+
+    """
+    selectors = dict()
+    for entry in raw_strings:
+        selector, description = entry.split(" -> ")
+        selectors[selector] = description
+    return selectors
 
 
 class StreamDS:
@@ -127,17 +132,16 @@ class StreamDS:
 
         func.__doc__ = stream.description
 
-        if not SKIP_SIGNATURE_HINTS:
-            sig_dict = OrderedDict()
-            for sel in stream.mandatory_selectors.split(","):
-                if sel == "-":
-                    continue
-                sig_dict[Parameter(sel, Parameter.POSITIONAL_OR_KEYWORD)] = None
-            for sel in stream.optional_selectors.split(","):
-                if sel == "-":
-                    continue
-                sig_dict[Parameter(sel, Parameter.KEYWORD_ONLY)] = None
-            func.__signature__ = Signature(parameters=sig_dict)
+        sig_dict = OrderedDict()
+        for sel in stream.mandatory_selectors.split(","):
+            if sel == "-":
+                continue
+            sig_dict[Parameter(sel, Parameter.POSITIONAL_OR_KEYWORD)] = None
+        for sel in stream.optional_selectors.split(","):
+            if sel == "-":
+                continue
+            sig_dict[Parameter(sel, Parameter.KEYWORD_ONLY)] = None
+        func.__signature__ = Signature(parameters=sig_dict)
 
         return func
 

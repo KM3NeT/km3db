@@ -62,7 +62,7 @@ class APIv2:
     def _get(self, url="", default=None, **kwargs):
         """Return the data for a given APIv2 endpoint. Does not raise."""
         try:
-            final_url = f"{self._api_endpoint}{url}"
+            final_url = "{}{}".format(self._api_endpoint, url)
             response = json.loads(self._db.get(final_url))
         except json.JSONDecodeError:
             log.error("Invalid JSON data received from the DB")

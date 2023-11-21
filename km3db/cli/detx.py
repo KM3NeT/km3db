@@ -14,7 +14,10 @@ Options:
     -p P_CAL      Position calibration ID [default: 0].
     -r R_CAL      Rotation calibration ID [default: 0].
     -t T_CAL      Time calibration ID [default: 0].
-    -v VERSION    DETX file format version [default: 2].
+    -a A_CAL      Acoustics calibration ID [default: 0].
+    -c C_CAL      Compass calibration ID [default: 0].
+    -s S_CAL      Status calibration ID [default: 0].
+    -v VERSION    DETX file format version [default: 5].
     -o OUT        Output folder or filename.
     -h --help     Show this screen.
 
@@ -47,6 +50,9 @@ def main():
             pcal=args["-p"],
             rcal=args["-r"],
             tcal=args["-t"],
+            acal=args["-a"],
+            ccal=args["-c"],
+            scal=args["-s"],
             version=int(args["-v"]),
         )
 

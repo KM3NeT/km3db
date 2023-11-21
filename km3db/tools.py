@@ -13,7 +13,7 @@ from km3db.logger import log
 
 
 class APIv2:
-    _api_endpoint = "apiv2/"
+    _api_endpoint = "apiv2.1.0/"
 
     def __init__(self, url=None, container=None):
         self._db = km3db.core.DBManager(url=url)

@@ -50,6 +50,10 @@ class AuthenticationError(Exception):
 
 
 class DBManager:
+    """
+    Handles login and session management to the KM3NeT DB.
+    """
+
     def __init__(self, url=None, network_class=None):
         self._db_url = BASE_URL if url is None else url
         self._login_url = self._db_url + "/home.htm"

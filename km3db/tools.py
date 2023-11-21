@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from collections import OrderedDict, namedtuple
 from functools import wraps
+from inspect import Parameter, Signature
 import io
 import json
 
@@ -11,14 +12,91 @@ import km3db.extras
 from km3db.logger import log
 
 
-try:
-    # Python 3.5+
-    from inspect import Signature, Parameter
+class APIv2:
+    _api_endpoint = "apiv2.1.0/"
 
-    SKIP_SIGNATURE_HINTS = False
-except ImportError:
-    # Python 2.7
-    SKIP_SIGNATURE_HINTS = True
+    def __init__(self, url=None, container=None):
+        self._db = km3db.core.DBManager(url=url)
+        self._endpoints = None
+        self._update_endpoints()
+
+    def __getattr__(self, attr, **kwargs):
+        """Magic getter to select a specific stream"""
+        if attr not in self.endpoints:
+            raise AttributeError(
+                "Invalid selector: '{}'. Please use one of these: {}".format(
+                    attr, ", ".join(self.endpoints.keys())
+                )
+            )
+
+        def func(**kwargs):
+            url = "{}/s?".format(attr) + "&".join(
+                "{}={}".format(k, v) for k, v in kwargs.items()
+            )
+            return self._get(url)
+
+        func.__doc__ = self.endpoints[attr]["Description"]
+
+        # TODO: schema not used yet
+        # schema = _extract_schema(self.endpoints[attr]["Schema"])
+        selectors = _extract_selectors(self.endpoints[attr]["Selectors"])
+
+        func.__doc__ += "\n\nParameters:\n"
+        sig_dict = OrderedDict()
+        for sel, description in selectors.items():
+            func.__doc__ += "    {}: {}\n".format(sel, description)
+            sig_dict[Parameter(sel, Parameter.KEYWORD_ONLY)] = None
+
+        func.__signature__ = Signature(parameters=sig_dict)
+
+        return func
+
+    @property
+    def endpoints(self):
+        return {e["Name"]: e for e in self._endpoints}
+
+    def _update_endpoints(self):
+        """Update the list of available endpoints"""
+        self._endpoints = self._get()
+
+    def _get(self, url="", default=None, **kwargs):
+        """Return the data for a given APIv2 endpoint. Does not raise."""
+        try:
+            final_url = "{}{}".format(self._api_endpoint, url)
+            response = json.loads(self._db.get(final_url))
+        except json.JSONDecodeError:
+            log.error("Invalid JSON data received from the DB")
+            return default
+        if not self._validate(response):
+            return default
+        return response["Data"]
+
+    def _validate(self, response):
+        """Returns True if the DB response is OK, False otherwise."""
+        err = response["Error"]
+        if err["Code"] != "OK":
+            log.error(
+                "Error from the DB ({}): {} (arguments: {})".format(
+                    err["Code"], err["Message"], err["Arguments"]
+                )
+            )
+            return False
+        return True
+
+
+def _extract_selectors(raw_strings):
+    """Creates a dictionary from the raw DB output (list of strings).
+
+    A string like "OperationId -> Filters by OperationId" will become an entry
+    in the resulting dictionary with "OperationId" as key and "Filters by
+    OperationId" as value.
+
+    """
+    selectors = dict()
+    for entry in raw_strings:
+        selector, description = entry.split(" -> ")
+        selectors[selector] = description
+    return selectors
 
 
 class StreamDS:
@@ -65,17 +143,16 @@ class StreamDS:
 
         func.__doc__ = stream.description
 
-        if not SKIP_SIGNATURE_HINTS:
-            sig_dict = OrderedDict()
-            for sel in stream.mandatory_selectors.split(","):
-                if sel == "-":
-                    continue
-                sig_dict[Parameter(sel, Parameter.POSITIONAL_OR_KEYWORD)] = None
-            for sel in stream.optional_selectors.split(","):
-                if sel == "-":
-                    continue
-                sig_dict[Parameter(sel, Parameter.KEYWORD_ONLY)] = None
-            func.__signature__ = Signature(parameters=sig_dict)
+        sig_dict = OrderedDict()
+        for sel in stream.mandatory_selectors.split(","):
+            if sel == "-":
+                continue
+            sig_dict[Parameter(sel, Parameter.POSITIONAL_OR_KEYWORD)] = None
+        for sel in stream.optional_selectors.split(","):
+            if sel == "-":
+                continue
+            sig_dict[Parameter(sel, Parameter.KEYWORD_ONLY)] = None
+        func.__signature__ = Signature(parameters=sig_dict)
 
         return func
 
@@ -408,49 +485,44 @@ def show_compass_calibration(clb_upi, version="3"):
             print("{}: {}".format(name, value))
 
 
-def detx(det_id, pcal=0, rcal=0, tcal=0, version=2):
+def detx(det_id, pcal=0, rcal=0, tcal=0, acal=0, ccal=0, scal=0, version=5):
     """Retrieve the calibrated detector file for the given detector ID"""
 
-    url = "detx/{det_id}?tcal={tcal}&pcal={pcal}&rcal={rcal}&v={version}".format(
-        det_id=det_id, tcal=tcal, pcal=pcal, rcal=rcal, version=version
+    url = (
+        "detx/{det_id}?"
+        "tcal={tcal}&pcal={pcal}&rcal={rcal}&"
+        "acal={acal}&ccal={ccal}&scal={scal}&"
+        "v={version}".format(
+            det_id=det_id,
+            tcal=tcal,
+            pcal=pcal,
+            rcal=rcal,
+            acal=acal,
+            ccal=ccal,
+            scal=scal,
+            version=version,
+        )
     )
 
     return km3db.core.DBManager().get(url)
 
 
-def detx_for_run(det_id, run, version=2):
+def detx_for_run(det_id, run, version=5):
     """Retrieve the calibrate detector file for given run"""
-    run_table = StreamDS(container="nt").get("runs", detid=det_id)
-    if run_table is None:
-        log.error("No run table found for detector ID {}".format(det_id))
-        return None
+    api = APIv2()
+    cals = api.RunCalibration(DetOId=todetoid(det_id), Run=run, Ranking=1)
+    calibration_ids = dict()
+    # type is e.g. "COMPASS_CALIBRATION" or "STATUS_CALIBRATION", corresponding to "ccal" or "scal"
+    for cal in cals:
+        calibration_ids[cal["CalibrationType"]] = cal["CalibrationId"]
 
-    for run_info in run_table:
-        if run_info.run == run:
-            break
-    else:
-        log.error("Run {} not found for detector {}".format(run, det_id))
-        return None
-
-    tcal = run_info.t0_calibsetid
-    if tcal == "":
-        log.warning(
-            "No time calibration found for run {} (detector {})".format(run, det_id)
-        )
-        tcal = 0
-
-    pcal = run_info.pos_calibsetid
-    if pcal == "":
-        log.warning(
-            "No position calibration found for run {} (detector {})".format(run, det_id)
-        )
-        pcal = 0
-
-    rcal = run_info.rot_calibsetid
-    if rcal == "":
-        log.warning(
-            "No rotation calibration found for run {} (detector {})".format(run, det_id)
-        )
-        rcal = 0
-
-    return detx(det_id, pcal=pcal, rcal=rcal, tcal=tcal, version=version)
+    return detx(
+        det_id,
+        pcal=calibration_ids.get("DOM_POSITION_CALIBRATION", 0),
+        rcal=calibration_ids.get("DOM_ROTATION_CALIBRATION", 0),
+        tcal=calibration_ids.get("PMT_T0_CALIBRATION", 0),
+        acal=calibration_ids.get("ACOUSTIC_T0_CALIBRATION", 0),
+        ccal=calibration_ids.get("COMPASS_CALIBRATION", 0),
+        scal=calibration_ids.get("STATUS_CALIBRATION", 0),
+        version=version,
+    )

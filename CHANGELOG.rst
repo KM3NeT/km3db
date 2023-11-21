@@ -4,6 +4,14 @@ Unreleased changes
 
 Version 0
 ---------
+0.13.0 / 2023-11-21
+~~~~~~~~~~~~~~~~~~~
+* API v2 support added
+* DETX retrieval now returns v5 by default
+* API v2 is now  used to determine the calibration sets (instead of using the run table)
+* DETX now automatically includes all six calibration sets (pcal, rcal, tcal, scal, acal and ccal)
+  if available
+
 0.12.0 / 2023-09-13
 ~~~~~~~~~~~~~~~~~~~
 * added `DBManager.username` field to get access to the username

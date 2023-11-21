@@ -160,8 +160,8 @@ class TestDetxHelpersOnline(unittest.TestCase):
         assert detx_string is not None
         split_lines = detx_string.split("\n")
         assert str(det_id) in split_lines[0]
-        assert 3461 == len(split_lines)
-        assert float(split_lines[6].split()[-1]) == 0.0  # t0 is not set
+        assert 3467 == len(split_lines)
+        assert float(split_lines[6].split()[-2]) == 0.0  # t0 is not set
 
     def test_detx_for_run(self):
         det_id = 49
@@ -169,8 +169,8 @@ class TestDetxHelpersOnline(unittest.TestCase):
         assert detx_string is not None
         split_lines = detx_string.split("\n")
         assert str(det_id) in split_lines[0]
-        assert 3461 == len(split_lines)
-        assert float(split_lines[6].split()[-1]) != 0.0  # check a single PMT t0
+        assert 3467 == len(split_lines)
+        assert float(split_lines[6].split()[-2]) == 207103.505  # check a single PMT t0
 
 
 class TestDetIDandOIDConversionsOnline(unittest.TestCase):

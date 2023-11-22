@@ -4,6 +4,10 @@ Unreleased changes
 
 Version 0
 ---------
+0.13.1 / 2023-11-22
+~~~~~~~~~~~~~~~~~~~
+* More verbosity for the DETX retrieval (now prints the calibration sets)
+
 0.13.0 / 2023-11-21
 ~~~~~~~~~~~~~~~~~~~
 * API v2 support added

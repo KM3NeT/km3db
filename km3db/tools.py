@@ -488,6 +488,12 @@ def show_compass_calibration(clb_upi, version="3"):
 def detx(det_id, pcal=0, rcal=0, tcal=0, acal=0, ccal=0, scal=0, version=5):
     """Retrieve the calibrated detector file for the given detector ID"""
 
+    print(
+        "Retrieving DETX for {} with: pcal={}, rcal={}, tcal={}, acal={}, ccal={}, scal={}".format(
+            det_id, pcal, rcal, tcal, acal, ccal, scal
+        )
+    )
+
     url = (
         "detx/{det_id}?"
         "tcal={tcal}&pcal={pcal}&rcal={rcal}&"

@@ -140,7 +140,10 @@ class DBManager:
         cookie = os.getenv("KM3NET_DB_COOKIE")
         if cookie is not None:
             log.info("Using cookie from env ($KM3NET_DB_COOKIE)")
-            return cookie
+            # splitting and returning the last part, just in case
+            # someone has the full string in the env var (not only the
+            # sid value)
+            return cookie.split()[-1].strip()
 
         # The cookie file can also be specified via the environment
         cookiefile = os.getenv("KM3NET_DB_COOKIE_FILE")

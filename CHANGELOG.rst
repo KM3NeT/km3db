@@ -4,6 +4,11 @@ Unreleased changes
 
 Version 0
 ---------
+0.13.2 / 2024-01-16
+~~~~~~~~~~~~~~~~~~~
+* Fixed a bug which prevented a KM3NET_DB_COOKIE to be accepted when
+  it contained the full cookie string
+
 0.13.1 / 2023-11-22
 ~~~~~~~~~~~~~~~~~~~
 * More verbosity for the DETX retrieval (now prints the calibration sets)

@@ -69,11 +69,12 @@ class DBManager:
         try:
             f = self.opener.open(target_url)
         except HTTPError as e:
-            if e.code == 403:
+            if e.code in (401, 403):
                 if retries:
                     log.error(
-                        "Access forbidden, your session has expired. "
+                        "Access forbidden (error %d), your session has expired. "
                         "Deleting the cookie (%s) and retrying once.",
+                        e.code,
                         COOKIE_FILENAME,
                     )
                     retries -= 1

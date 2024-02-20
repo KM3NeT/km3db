@@ -4,6 +4,11 @@ Unreleased changes
 
 Version 0
 ---------
+0.13.3 / 2024-02-20
+~~~~~~~~~~~~~~~~~~~
+* Fixes an issue with the new API of KM3Web which gives a 401
+  error for wrong credentials or an invalid session cookie
+
 0.13.2 / 2024-01-16
 ~~~~~~~~~~~~~~~~~~~
 * Fixed a bug which prevented a KM3NET_DB_COOKIE to be accepted when

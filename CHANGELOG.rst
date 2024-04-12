@@ -4,6 +4,10 @@ Unreleased changes
 
 Version 0
 ---------
+0.14.1 / 2024-04-12
+~~~~~~~~~~~~~~~~~~~
+* Hotfix for integer values in selectors of APIv2
+
 0.14.0 / 2024-04-12
 ~~~~~~~~~~~~~~~~~~~
 * APIv2 is now exposed as `km3db.APIv2`

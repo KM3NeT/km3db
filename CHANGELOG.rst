@@ -4,6 +4,11 @@ Unreleased changes
 
 Version 0
 ---------
+0.14.0 / 2024-04-12
+~~~~~~~~~~~~~~~~~~~
+* APIv2 is now exposed as `km3db.APIv2`
+* Selector operators are now available in APIv2
+
 0.13.3 / 2024-02-20
 ~~~~~~~~~~~~~~~~~~~
 * Fixes an issue with the new API of KM3Web which gives a 401

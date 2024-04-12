@@ -14,6 +14,7 @@ from km3db.logger import log
 
 class APIv2:
     _api_endpoint = "apiv2.1.0/"
+    _valid_operators = ("<", "<=", ">", ">=", "<>", "!=")
 
     def __init__(self, url=None, container=None):
         self._db = km3db.core.DBManager(url=url)
@@ -30,9 +31,13 @@ class APIv2:
             )
 
         def func(**kwargs):
-            url = "{}/s?".format(attr) + "&".join(
-                "{}={}".format(k, v) for k, v in kwargs.items()
-            )
+            url = "{}/s?".format(attr)
+            for key, value in kwargs.items():
+                url += "&" + key
+                if any(value.startswith(op) for op in self._valid_operators):
+                    url += value
+                else:
+                    url += "=" + value
             return self._get(url)
 
         func.__doc__ = self.endpoints[attr]["Description"]

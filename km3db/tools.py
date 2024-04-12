@@ -33,6 +33,8 @@ class APIv2:
         def func(**kwargs):
             url = "{}/s?".format(attr)
             for key, value in kwargs.items():
+                key = str(key)
+                value = str(value)
                 url += "&" + key
                 if any(value.startswith(op) for op in self._valid_operators):
                     url += value

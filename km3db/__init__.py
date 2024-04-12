@@ -4,4 +4,4 @@ version = get_distribution(__name__).version
 
 
 from .core import DBManager, AuthenticationError
-from .tools import StreamDS, CLBMap
+from .tools import StreamDS, CLBMap, APIv2

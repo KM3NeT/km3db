@@ -458,7 +458,7 @@ def df_to_sarray(df):
     types = [(cols[i], df[k].dtype.type) for (i, k) in enumerate(cols)]
     v = df.values
     arr = np.zeros(v.shape[0], np.dtype(types))
-    for (idx, field) in enumerate(arr.dtype.names):
+    for idx, field in enumerate(arr.dtype.names):
         arr[field] = v[:, idx]
     return arr
 

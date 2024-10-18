@@ -8,7 +8,6 @@ runs for this detector configuration.
 author: Valentin Pestel (vpestel@nikhef.nl)
 """
 
-
 import km3db
 import pandas as pd
 

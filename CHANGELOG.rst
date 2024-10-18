@@ -1,6 +1,8 @@
 Unreleased changes
 ------------------
 
+* Adds `-b` and `-o FILENAME` to the `km3db` command line tool to allow
+  for downloading binary files.
 
 Version 0
 ---------

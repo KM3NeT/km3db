@@ -1,11 +1,13 @@
 Unreleased changes
 ------------------
 
+Version 0
+---------
+0.14.2 / 2024-10-18
+~~~~~~~~~~~~~~~~~~~
 * Adds `-b` and `-o FILENAME` to the `km3db` command line tool to allow
   for downloading binary files.
 
-Version 0
----------
 0.14.1 / 2024-04-12
 ~~~~~~~~~~~~~~~~~~~
 * Hotfix for integer values in selectors of APIv2

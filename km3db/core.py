@@ -62,7 +62,7 @@ class DBManager:
         self._opener = None
         self._username = None
 
-    def get(self, url, default=None, retries=10):
+    def get(self, url, default=None, retries=10, binary=False):
         "Get HTML content"
         target_url = self._db_url + "/" + unquote(url)
         log.debug("Accessing %s", target_url)
@@ -117,7 +117,10 @@ class DBManager:
             content = icread.partial
         log.debug("Got {0} bytes of data.".format(len(content)))
 
-        return content.decode("utf-8")
+        if binary:
+            return content
+        else:
+            return content.decode("utf-8")
 
     def reset(self):
         "Reset everything"

@@ -2,9 +2,10 @@ Unreleased changes
 ------------------
 
 * Fixed a bug where the PROMISID column (hex values) were incorrectly
-  treated as floats and resulted in parsing "0052e3" as "52000.0"
-  (scientific notation). Another issue was that leading zeroes
-  were cut off. See https://git.km3net.de/km3py/km3db/-/issues/19
+  treated as floats when using Pandas as container type, and thus 
+  resulted in parsing "0052e3" as "52000.0" (scientific notation).
+  Another issue was that leading zeroes were cut off.
+  See https://git.km3net.de/km3py/km3db/-/issues/19
 
 Version 0
 ---------

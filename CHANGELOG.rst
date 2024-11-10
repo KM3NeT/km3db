@@ -1,14 +1,16 @@
 Unreleased changes
 ------------------
 
+Version 0
+---------
+0.14.3 / 2024-11-10
+~~~~~~~~~~~~~~~~~~~
 * Fixed a bug where the PROMISID column (hex values) were incorrectly
   treated as floats when using Pandas as container type, and thus 
   resulted in parsing "0052e3" as "52000.0" (scientific notation).
   Another issue was that leading zeroes were cut off.
   See https://git.km3net.de/km3py/km3db/-/issues/19
 
-Version 0
----------
 0.14.2 / 2024-10-18
 ~~~~~~~~~~~~~~~~~~~
 * Adds `-b` and `-o FILENAME` to the `km3db` command line tool to allow

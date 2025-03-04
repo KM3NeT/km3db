@@ -1,11 +1,13 @@
 Unreleased changes
 ------------------
 
+Version 0
+---------
+0.14.4 / 2025-03-04
+~~~~~~~~~~~~~~~~~~~
 * Fixes and modernises the logging facility so that it does not clash
   with coloured logging of other libraries
 
-Version 0
----------
 0.14.3 / 2024-11-10
 ~~~~~~~~~~~~~~~~~~~
 * Fixed a bug where the PROMISID column (hex values) were incorrectly

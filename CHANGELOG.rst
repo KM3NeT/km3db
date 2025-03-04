@@ -1,6 +1,9 @@
 Unreleased changes
 ------------------
 
+* Fixes and modernises the logging facility so that it does not clash
+  with coloured logging of other libraries
+
 Version 0
 ---------
 0.14.3 / 2024-11-10

@@ -1,5 +1,49 @@
 [build-system]
-requires = ["setuptools>=42", "wheel", "setuptools_scm[toml]>=3.4"]
+requires = ["setuptools>=64", "setuptools-scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "km3db"
+dependencies = [
+  "docopt",
+  "pytz",
+  "requests",
+  "setuptools_scm",
+  "numpy"
+]
+requires-python = ">=3.6"
+description = "KM3NeT Database Library"
+readme = {file = "README.rst", content-type = "text/x-rst"}
+dynamic = ["version"]
+
+[project.optional-dependencies]
+dev = [
+  "black",
+  "km3net_testdata>=0.2.7",
+  "matplotlib",
+  "memory_profiler",
+  "mock",
+  "numpydoc",
+  "pytest",
+  "pytest-cov",
+  "pytest-watch",
+  "sphinx",
+  "sphinx-autoapi",
+  "sphinx-gallery>=0.1.12",
+  "sphinx_rtd_theme",
+  "sphinxcontrib-versioning",
+  "wheel"
+]
+
+[project.scripts]
+spam-cli = "spam:main_cli"
+
+[project.urls]
+Homepage = "https://git.km3net.de/km3py/km3db"
+Documentation = "https://km3py.pages.km3net.de/km3db/"
+Repository = "https://git.km3net.de/km3py/km3db.git"
+Issues = "https://git.km3net.de/km3py/km3db/-/issues"
+Changelog = "https://km3py.pages.km3net.de/km3db/changelog.html"
 
 [tool.setuptools_scm]
-write_to = "km3db/version.py"
+write_to = "src/version.py"

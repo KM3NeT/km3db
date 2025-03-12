@@ -14,10 +14,6 @@ install-dev:
 venv:
 	python3 -m venv venv
 
-clean:
-	python3 setup.py clean --all
-	rm -rf venv
-
 test: 
 	python -m pytest --junitxml=./reports/junit.xml -o junit_suite_name=$(PKGNAME) tests
 
@@ -36,6 +32,5 @@ black:
 	black doc/conf.py
 	black tests
 	black examples
-	black setup.py
 
 .PHONY: all clean install install-dev venv test test-cov test-loop benchmark black

@@ -15,8 +15,7 @@ import sys
 
 __author__ = "Tamas Gal"
 __credits__ = [
-    "Sam Clements for all the colours! "
-    "https://github.com/borntyping/python-colorlog"
+    "Sam Clements for all the colours! " "https://github.com/borntyping/python-colorlog"
 ]
 __license__ = "MIT"
 __email__ = "tgal@km3net.de"
@@ -24,42 +23,58 @@ __email__ = "tgal@km3net.de"
 
 ATTRIBUTES = dict(
     list(
-        zip([
-            'bold', 'dark', '', 'underline', 'blink', '', 'reverse',
-            'concealed'
-        ], list(range(1, 9)))))
-del ATTRIBUTES['']
+        zip(
+            ["bold", "dark", "", "underline", "blink", "", "reverse", "concealed"],
+            list(range(1, 9)),
+        )
+    )
+)
+del ATTRIBUTES[""]
 
-ATTRIBUTES_RE = r'\033\[(?:%s)m' % '|'  \
-                .join(['%d' % v for v in ATTRIBUTES.values()])
+ATTRIBUTES_RE = r"\033\[(?:%s)m" % "|".join(["%d" % v for v in ATTRIBUTES.values()])
 
 HIGHLIGHTS = dict(
     list(
-        zip([
-            'on_grey', 'on_red', 'on_green', 'on_yellow', 'on_blue',
-            'on_magenta', 'on_cyan', 'on_white'
-        ], list(range(40, 48)))))
+        zip(
+            [
+                "on_grey",
+                "on_red",
+                "on_green",
+                "on_yellow",
+                "on_blue",
+                "on_magenta",
+                "on_cyan",
+                "on_white",
+            ],
+            list(range(40, 48)),
+        )
+    )
+)
 
-HIGHLIGHTS_RE = r'\033\[(?:%s)m' % '|'  \
-                .join(['%d' % v for v in HIGHLIGHTS.values()])
+HIGHLIGHTS_RE = r"\033\[(?:%s)m" % "|".join(["%d" % v for v in HIGHLIGHTS.values()])
 
 COLORS = dict(
     list(
-        zip([
-            'grey',
-            'red',
-            'green',
-            'yellow',
-            'blue',
-            'magenta',
-            'cyan',
-            'white',
-        ], list(range(30, 38)))))
+        zip(
+            [
+                "grey",
+                "red",
+                "green",
+                "yellow",
+                "blue",
+                "magenta",
+                "cyan",
+                "white",
+            ],
+            list(range(30, 38)),
+        )
+    )
+)
 
-COLORS_RE = r'\033\[(?:%s)m' % '|'.join(['%d' % v for v in COLORS.values()])
+COLORS_RE = r"\033\[(?:%s)m" % "|".join(["%d" % v for v in COLORS.values()])
 
-RESET = r'\033[0m'
-RESET_RE = r'\033\[0m'
+RESET = r"\033[0m"
+RESET_RE = r"\033\[0m"
 
 
 def colored(text, color=None, on_color=None, attrs=None, ansi_code=None):
@@ -77,18 +92,18 @@ def colored(text, color=None, on_color=None, attrs=None, ansi_code=None):
         colored('Hello, World!', 'red', 'on_grey', ['blue', 'blink'])
         colored('Hello, World!', 'green')
     """
-    if os.getenv('ANSI_COLORS_DISABLED') is None:
+    if os.getenv("ANSI_COLORS_DISABLED") is None:
         if ansi_code is not None:
             return "\033[38;5;{}m{}\033[0m".format(ansi_code, text)
-        fmt_str = '\033[%dm%s'
+        fmt_str = "\033[%dm%s"
         if color is not None:
-            text = re.sub(COLORS_RE + '(.*?)' + RESET_RE, r'\1', text)
+            text = re.sub(COLORS_RE + "(.*?)" + RESET_RE, r"\1", text)
             text = fmt_str % (COLORS[color], text)
         if on_color is not None:
-            text = re.sub(HIGHLIGHTS_RE + '(.*?)' + RESET_RE, r'\1', text)
+            text = re.sub(HIGHLIGHTS_RE + "(.*?)" + RESET_RE, r"\1", text)
             text = fmt_str % (HIGHLIGHTS[on_color], text)
         if attrs is not None:
-            text = re.sub(ATTRIBUTES_RE + '(.*?)' + RESET_RE, r'\1', text)
+            text = re.sub(ATTRIBUTES_RE + "(.*?)" + RESET_RE, r"\1", text)
             for attr in attrs:
                 text = fmt_str % (ATTRIBUTES[attr], text)
         return text + RESET
@@ -110,9 +125,9 @@ def isnotebook():
     """Check if running within a Jupyter notebook"""
     try:
         shell = get_ipython().__class__.__name__
-        if shell == 'ZMQInteractiveShell':
+        if shell == "ZMQInteractiveShell":
             return True  # Jupyter notebook or qtconsole
-        elif shell == 'TerminalInteractiveShell':
+        elif shell == "TerminalInteractiveShell":
             return False  # Terminal running IPython
         else:
             return False  # Other type (?)
@@ -124,22 +139,23 @@ def supports_color():
     """Checks if the terminal supports color."""
     if isnotebook():
         return True
-    supported_platform = sys.platform != 'win32' or 'ANSICON' in os.environ
-    is_a_tty = hasattr(sys.stdout, 'isatty') and sys.stdout.isatty()
+    supported_platform = sys.platform != "win32" or "ANSICON" in os.environ
+    is_a_tty = hasattr(sys.stdout, "isatty") and sys.stdout.isatty()
 
     if not supported_platform or not is_a_tty:
         return False
 
     return True
 
+
 DEFAULT_LOG_COLORS = {
-    'DEBUG': 'thin_white',
-    'INFO': 'green',
-    'WARNING': 'yellow',
-    'ERROR': 'red',
-    'CRITICAL': 'bold_red',
-    'ONCE': 'cyan',
-    'DEPRECATION': 'bold_blue'
+    "DEBUG": "thin_white",
+    "INFO": "green",
+    "WARNING": "yellow",
+    "ERROR": "red",
+    "CRITICAL": "bold_red",
+    "ONCE": "cyan",
+    "DEPRECATION": "bold_blue",
 }
 
 LOGGERS = {}  # this holds all the registered loggers
@@ -147,7 +163,7 @@ DEPRECATION = 45
 logging.addLevelName(DEPRECATION, "DEPRECATION")
 ONCE = 46
 logging.addLevelName(ONCE, "ONCE")
-DATEFMT = '%Y-%m-%d %H:%M:%S'
+DATEFMT = "%Y-%m-%d %H:%M:%S"
 
 
 def deprecation(self, message, *args, **kwargs):
@@ -170,7 +186,7 @@ def once(self, message, *args, identifier=None, **kwargs):
     if identifier is None:
         caller = getframeinfo(stack()[1][0])
         identifier = "%s:%d" % (caller.filename, caller.lineno)
-    if not hasattr(self, 'once_dict'):
+    if not hasattr(self, "once_dict"):
         self.once_dict = {}
     if identifier in self.once_dict:
         return
@@ -183,31 +199,29 @@ logging.Logger.once = once
 
 def esc(*x):
     """Create escaped code from format code"""
-    return '\033[' + ';'.join(x) + 'm'
+    return "\033[" + ";".join(x) + "m"
 
 
 # The following coloured log logic is from
 # https://github.com/borntyping/python-colorlog
 # I dropped some features and removed the Python 2.7 compatibility
 
-ESCAPE_CODES = {'reset': esc('0'), 'bold': esc('01'), 'thin': esc('02')}
+ESCAPE_CODES = {"reset": esc("0"), "bold": esc("01"), "thin": esc("02")}
 
-COLORS = ['black', 'red', 'green', 'yellow', 'blue', 'purple', 'cyan', 'white']
+COLORS = ["black", "red", "green", "yellow", "blue", "purple", "cyan", "white"]
 
 PREFIXES = [
     # Foreground without prefix
-    ('3', ''),
-    ('01;3', 'bold_'),
-    ('02;3', 'thin_'),
-
+    ("3", ""),
+    ("01;3", "bold_"),
+    ("02;3", "thin_"),
     # Foreground with fg_ prefix
-    ('3', 'fg_'),
-    ('01;3', 'fg_bold_'),
-    ('02;3', 'fg_thin_'),
-
+    ("3", "fg_"),
+    ("01;3", "fg_bold_"),
+    ("02;3", "fg_thin_"),
     # Background with bg_ prefix - bold/light works differently
-    ('4', 'bg_'),
-    ('10', 'bg_bold_'),
+    ("4", "bg_"),
+    ("10", "bg_bold_"),
 ]
 
 for _prefix, _prefix_name in PREFIXES:
@@ -217,7 +231,7 @@ for _prefix, _prefix_name in PREFIXES:
 
 def parse_colors(sequence):
     """Return escape codes from a color sequence."""
-    return ''.join(ESCAPE_CODES[n] for n in sequence.split(',') if n)
+    return "".join(ESCAPE_CODES[n] for n in sequence.split(",") if n)
 
 
 class ColoredRecord:
@@ -245,13 +259,15 @@ class ColouredFormatter(logging.Formatter):
     Based on https://github.com/borntyping/python-colorlog
     """
 
-    def __init__(self,
-                 fmt,
-                 datefmt=None,
-                 style='%',
-                 log_colors=None,
-                 reset=True,
-                 secondary_log_colors=None):
+    def __init__(
+        self,
+        fmt,
+        datefmt=None,
+        style="%",
+        log_colors=None,
+        reset=True,
+        secondary_log_colors=None,
+    ):
         """
         Set the format and colors the ColouredFormatter will use.
         The ``fmt``, ``datefmt`` and ``style`` args are passed on to the
@@ -274,8 +290,7 @@ class ColouredFormatter(logging.Formatter):
         """
         super(ColouredFormatter, self).__init__(fmt, datefmt, style)
 
-        self.log_colors = (log_colors
-                           if log_colors is not None else DEFAULT_LOG_COLORS)
+        self.log_colors = log_colors if log_colors is not None else DEFAULT_LOG_COLORS
         self.secondary_log_colors = secondary_log_colors
         self.reset = reset
 
@@ -287,12 +302,12 @@ class ColouredFormatter(logging.Formatter):
         if self.secondary_log_colors:
             for name, log_colors in self.secondary_log_colors.items():
                 color = escape_codes(log_colors, record.levelname)
-                setattr(record, name + '_log_color', color)
+                setattr(record, name + "_log_color", color)
 
         message = super(ColouredFormatter, self).format(record)
 
-        if self.reset and not message.endswith(ESCAPE_CODES['reset']):
-            message += ESCAPE_CODES['reset']
+        if self.reset and not message.endswith(ESCAPE_CODES["reset"]):
+            message += ESCAPE_CODES["reset"]
 
         return message
 
@@ -308,17 +323,17 @@ def get_logger(name, filename=None, datefmt=DATEFMT):
 
     if supports_color():
         prefix_1, suffix = hash_coloured_escapes(name)
-        prefix_2, _ = hash_coloured_escapes(name + 'salt')
+        prefix_2, _ = hash_coloured_escapes(name + "salt")
     else:
-        prefix_1, prefix_2, suffix = ('', '', '')
+        prefix_1, prefix_2, suffix = ("", "", "")
 
-    date_str = '%(asctime)s ' if datefmt else ''
+    date_str = "%(asctime)s " if datefmt else ""
 
     stream_formatter = ColouredFormatter(
-        '{}%(log_color)s%(levelname)-8s%(reset)s {}+{}+{} %(name)s'
-        '%(log_color)s: %(message)s'.format(date_str, prefix_1, prefix_2,
-                                            suffix),
-        datefmt=datefmt)
+        "{}%(log_color)s%(levelname)-8s%(reset)s {}+{}+{} %(name)s"
+        "%(log_color)s: %(message)s".format(date_str, prefix_1, prefix_2, suffix),
+        datefmt=datefmt,
+    )
     stream_handler = logging.StreamHandler()
     stream_handler.setFormatter(stream_formatter)
     logger.addHandler(stream_handler)
@@ -326,7 +341,8 @@ def get_logger(name, filename=None, datefmt=DATEFMT):
     if filename:
         file_handler = logging.FileHandler(filename)
         file_formatter = logging.Formatter(
-            '{}|%(levelname)-8s %(name)s: %(message)s'.format(date_str))
+            "{}|%(levelname)-8s %(name)s: %(message)s".format(date_str)
+        )
         file_handler.setFormatter(file_formatter)
         logger.addHandler(file_handler)
 
@@ -355,18 +371,19 @@ def get_printer(name, color=None, ansi_code=None, force_color=False):
     if force_color or supports_color():
         if color is None and ansi_code is None:
             cprefix_1, csuffix = hash_coloured_escapes(name)
-            cprefix_2, _ = hash_coloured_escapes(name + 'salt')
-            name = cprefix_1 + '+' + cprefix_2 + '+' + csuffix + ' ' + name
+            cprefix_2, _ = hash_coloured_escapes(name + "salt")
+            name = cprefix_1 + "+" + cprefix_2 + "+" + csuffix + " " + name
         else:
             name = colored(name, color=color, ansi_code=ansi_code)
 
-    prefix = name + ': '
+    prefix = name + ": "
 
     def printer(text):
         date = datetime.now().strftime(DATEFMT)
-        print(date + ' ' + prefix + str(text))
+        print(date + " " + prefix + str(text))
 
     return printer
+
 
 def escape_codes(log_colors, level_name):
     """Return escape codes from a ``log_colors`` dict."""
@@ -375,14 +392,14 @@ def escape_codes(log_colors, level_name):
 
 def hash_coloured(text):
     """Return a ANSI coloured text based on its hash"""
-    ansi_code = int(sha256(text.encode('utf-8')).hexdigest(), 16) % 230
+    ansi_code = int(sha256(text.encode("utf-8")).hexdigest(), 16) % 230
     return colored(text, ansi_code=ansi_code)
 
 
 def hash_coloured_escapes(text):
     """Return the ANSI hash colour prefix and suffix for a given text"""
-    ansi_code = int(sha256(text.encode('utf-8')).hexdigest(), 16) % 230
-    prefix, suffix = colored('SPLIT', ansi_code=ansi_code).split('SPLIT')
+    ansi_code = int(sha256(text.encode("utf-8")).hexdigest(), 16) % 230
+    prefix, suffix = colored("SPLIT", ansi_code=ansi_code).split("SPLIT")
     return prefix, suffix
 
 

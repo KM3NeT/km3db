@@ -41,10 +41,18 @@ class TestStreamDSOnline(unittest.TestCase):
 
     def test_promisid_with_pandas(self):
         sds = StreamDS(container="pd")
-        assert "0021AB" == sds.pmt_2_base_2_promis(pmtupi='3.4.2.3/HAMA-R12199/1.12049').PROMISID[0]
-        assert "0052E3" == sds.pmt_2_base_2_promis(pmtupi='3.4.2.3/HAMA-R12199/2.9556').PROMISID[0]
-        assert "005770" == sds.pmt_2_base_2_promis(pmtupi='3.4.2.3/HAMA-R12199/2.9558').PROMISID[0]
-
+        assert (
+            "0021AB"
+            == sds.pmt_2_base_2_promis(pmtupi="3.4.2.3/HAMA-R12199/1.12049").PROMISID[0]
+        )
+        assert (
+            "0052E3"
+            == sds.pmt_2_base_2_promis(pmtupi="3.4.2.3/HAMA-R12199/2.9556").PROMISID[0]
+        )
+        assert (
+            "005770"
+            == sds.pmt_2_base_2_promis(pmtupi="3.4.2.3/HAMA-R12199/2.9558").PROMISID[0]
+        )
 
 
 class TestStreamDSOffline(unittest.TestCase):

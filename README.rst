@@ -12,7 +12,7 @@ KM3NeT database library
 
 
 ``km3db`` is a lightweight library to access the web API of the KM3NeT Oracle
-database (https://km3netdbweb.in2p3.fr). It requires Python 2.7 or later and
+database (https://km3netdbweb.in2p3.fr). It only requires Python 3.8 or later and
 comes with a small set of command line utilities which can be used in
 shell scripts.
 

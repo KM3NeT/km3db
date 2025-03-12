@@ -29,33 +29,6 @@ stages:
         junit: "reports/junit*.xml"
 
 
-test-py3.5:
-    image: docker.km3net.de/base/python:3.5
-    stage: test
-    script:
-        - *virtualenv_definition
-        - make test
-    <<: *junit_definition
-    allow_failure: false
-
-
-test-py3.6:
-    image: docker.km3net.de/base/python:3.6
-    stage: test
-    script:
-        - *virtualenv_definition
-        - make test
-    <<: *junit_definition
-
-
-test-py3.7:
-    image: docker.km3net.de/base/python:3.7
-    stage: test
-    script:
-        - *virtualenv_definition
-        - make test
-    <<: *junit_definition
-
 test-py3.8:
     image: docker.km3net.de/base/python:3.8
     stage: test
@@ -63,6 +36,8 @@ test-py3.8:
         - *virtualenv_definition
         - make test
     <<: *junit_definition
+    cache:
+        key: "$CI_JOB_NAME-$CI_COMMIT_REF_NAME"
 
 test-py3.9:
     image: docker.km3net.de/base/python:3.9
@@ -71,6 +46,8 @@ test-py3.9:
         - *virtualenv_definition
         - make test
     <<: *junit_definition
+    cache:
+        key: "$CI_JOB_NAME-$CI_COMMIT_REF_NAME"
 
 test-py3.10:
     image: docker.km3net.de/base/python:3.10
@@ -79,6 +56,8 @@ test-py3.10:
         - *virtualenv_definition
         - make test
     <<: *junit_definition
+    cache:
+        key: "$CI_JOB_NAME-$CI_COMMIT_REF_NAME"
 
 
 test-py3.11:
@@ -88,6 +67,8 @@ test-py3.11:
         - *virtualenv_definition
         - make test
     <<: *junit_definition
+    cache:
+        key: "$CI_JOB_NAME-$CI_COMMIT_REF_NAME"
 
 
 test-py3.12:
@@ -97,6 +78,8 @@ test-py3.12:
         - *virtualenv_definition
         - make test
     <<: *junit_definition
+    cache:
+        key: "$CI_JOB_NAME-$CI_COMMIT_REF_NAME"
 
 
 benchmarks:
@@ -107,6 +90,8 @@ benchmarks:
         - make benchmark
     <<: *junit_definition
     allow_failure: true
+    cache:
+        key: "$CI_JOB_NAME-$CI_COMMIT_REF_NAME"
 
 
 code-style:
@@ -116,6 +101,8 @@ code-style:
         - *virtualenv_definition
         - make black
     allow_failure: true
+    cache:
+        key: "$CI_JOB_NAME-$CI_COMMIT_REF_NAME"
 
 
 coverage:
@@ -130,6 +117,8 @@ coverage:
     artifacts:
         paths:
             - reports/coverage
+    cache:
+        key: "$CI_JOB_NAME-$CI_COMMIT_REF_NAME"
 
 
 build-docs:
@@ -162,9 +151,9 @@ pypi:
     stage: release
     cache: {}
     script:
-        - pip install -U twine wheel
-        - python setup.py sdist
-        - python setup.py bdist_wheel
+        - pip install -U twine wheel build
+        - python -m build --sdist
+        - python -m build --wheel
         - twine upload dist/*
     only:
         - tags

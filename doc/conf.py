@@ -51,7 +51,7 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "version.py"]
 
 # AutoAPI
 autoapi_type = "python"
-autoapi_dirs = ["../km3db"]
+autoapi_dirs = ["../src/km3db"]
 autoapi_ignore = ["*version.py*"]
 autoapi_add_toctree_entry = True
 

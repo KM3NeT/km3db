@@ -14,15 +14,11 @@ install-dev:
 venv:
 	python3 -m venv venv
 
-clean:
-	python3 setup.py clean --all
-	rm -rf venv
-
 test: 
 	python -m pytest --junitxml=./reports/junit.xml -o junit_suite_name=$(PKGNAME) tests
 
 test-cov:
-	python -m pytest --cov ./$(PKGNAME) --cov-report term-missing --cov-report xml:reports/coverage.xml --cov-report html:reports/coverage tests
+	python -m pytest --cov src/$(PKGNAME) --cov-report term-missing --cov-report xml:reports/coverage.xml --cov-report html:reports/coverage tests
 
 test-loop: 
 	python -m pytest tests
@@ -32,10 +28,9 @@ benchmark:
 	scripts/run_benchmarks.py benchmarks
 
 black:
-	black $(PKGNAME)
+	black src/$(PKGNAME)
 	black doc/conf.py
 	black tests
 	black examples
-	black setup.py
 
 .PHONY: all clean install install-dev venv test test-cov test-loop benchmark black

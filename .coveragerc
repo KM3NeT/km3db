@@ -3,10 +3,10 @@ source = km3db
 
 [report]
 include =
-    km3db/*
+    src/km3db/*
 omit =
     tests/*
-    km3db/version.py
+    src/km3db/version.py
 exclude_lines =
     pragma: no cover
     raise AssertionError

@@ -36,7 +36,8 @@ dev = [
   "wheel"
 ]
 extras = [
-  "pandas"
+  "pandas",
+  "h5py"
 ]
 
 [project.scripts]

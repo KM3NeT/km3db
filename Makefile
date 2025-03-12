@@ -28,7 +28,7 @@ benchmark:
 	scripts/run_benchmarks.py benchmarks
 
 black:
-	black $(PKGNAME)
+	black src/$(PKGNAME)
 	black doc/conf.py
 	black tests
 	black examples

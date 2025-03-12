@@ -21,6 +21,7 @@ dev = [
   "black",
   "km3net_testdata>=0.2.7",
   "matplotlib",
+  "pandas",
   "memory_profiler",
   "mock",
   "numpydoc",
@@ -33,6 +34,9 @@ dev = [
   "sphinx_rtd_theme",
   "sphinxcontrib-versioning",
   "wheel"
+]
+extras = [
+  "pandas"
 ]
 
 [project.scripts]

@@ -46,4 +46,4 @@ Issues = "https://git.km3net.de/km3py/km3db/-/issues"
 Changelog = "https://km3py.pages.km3net.de/km3db/changelog.html"
 
 [tool.setuptools_scm]
-write_to = "src/version.py"
+write_to = "src/km3db/version.py"

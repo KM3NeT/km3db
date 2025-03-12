@@ -4,7 +4,7 @@ __pycache__/
 *.pyxbldc
 
 # Version info
-src/version.py
+src/km3db/version.py
 
 # Build stuff
 build/

@@ -428,7 +428,9 @@ def tonamedtuples(name, text, renamemap=None):
 
 def topandas(text):
     """Create a DataFrame from database output"""
-    return km3db.extras.pandas().read_csv(io.StringIO(text), sep="\t", dtype={'PROMISID': 'str'})
+    return km3db.extras.pandas().read_csv(
+        io.StringIO(text), sep="\t", dtype={"PROMISID": "str"}
+    )
 
 
 def df_to_sarray(df):

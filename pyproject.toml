@@ -11,7 +11,7 @@ dependencies = [
   "setuptools_scm",
   "numpy"
 ]
-requires-python = ">=3.6"
+requires-python = ">=3.8"
 description = "KM3NeT Database Library"
 readme = {file = "README.rst", content-type = "text/x-rst"}
 dynamic = ["version"]
@@ -40,7 +40,14 @@ extras = [
 ]
 
 [project.scripts]
-spam-cli = "spam:main_cli"
+km3db = "km3db.cli.km3db:main"
+km3dbcookie = "km3db.cli.km3dbcookie:main"
+streamds = "km3db.cli.streamds:main"
+detx = "km3db.cli.detx:main"
+runtable = "km3db.cli.runtable:main"
+runinfo = "km3db.cli.runinfo:main"
+wtd = "km3db.cli.wtd:main"
+
 
 [project.urls]
 Homepage = "https://git.km3net.de/km3py/km3db"

@@ -185,7 +185,7 @@ class TestDetxHelpersOnline(unittest.TestCase):
         split_lines = detx_string.split("\n")
         assert str(det_id) in split_lines[0]
         assert 3467 == len(split_lines)
-        assert float(split_lines[6].split()[-2]) == 207103.505  # check a single PMT t0
+        self.assertAlmostEqual(float(split_lines[6].split()[-2]), 207103.505)  # check a single PMT t0
 
 
 class TestDetIDandOIDConversionsOnline(unittest.TestCase):

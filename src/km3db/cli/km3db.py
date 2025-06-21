@@ -20,6 +20,7 @@ Example:
 """
 import os
 import km3db
+import sys
 from docopt import docopt
 
 
@@ -34,7 +35,7 @@ def main():
         result = db.get(url, binary=is_binary)
     except UnicodeDecodeError:
         print("The data does not a valid UTF-8 string. Try with '-b'.")
-        exit(1)
+        sys.exit(1)
     else:
         filename = args["-o"]
         if is_binary and filename is None:
@@ -48,3 +49,4 @@ def main():
                 print(f"Data has been written to '{filename}'")
             else:
                 print(result)
+        sys.exit(0 if result is not None else 1)

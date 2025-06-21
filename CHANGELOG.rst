@@ -3,6 +3,10 @@ Unreleased changes
 
 Version 0
 ---------
+0.14.5 / 2025-06-21
+~~~~~~~~~~~~~~~~~~~
+* Non-zero exit for CLI on failure
+
 0.14.4 / 2025-03-04
 ~~~~~~~~~~~~~~~~~~~
 * Fixes and modernises the logging facility so that it does not clash

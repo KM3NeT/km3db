@@ -28,16 +28,6 @@ sds = km3db.tools.StreamDS(container="pd")
 print(sds.detectors())
 
 #####################################################
-# We can see that the list of detectors is quite long, because it
-# includes also testing setup in several laboratories.
-# The actual detectors, ORCA and ARCA, are respectively associated to
-# France and Italy as `CITY`. We can use these selectors to narrow
-# down the selection:
-
-print(sds.detectors(city="France"))
-print(sds.detectors(city="Italy"))
-
-#####################################################
 # Often, we want to look at a specific detector, for which we have the
 # serial number, e.g. ORCA6 with the serial number 49. It is possible
 # to use that as a selector too:
@@ -56,7 +46,7 @@ print(sds.detectors(serialnumber=49))
 # configuration:
 
 # Get ARCA21 detector
-det = sds.detectors(city="Italy", serialnumber=133).iloc[0]
+det = sds.detectors(serialnumber=133).iloc[0]
 print(det)
 
 runs = sds.runs(detid=det["OID"])

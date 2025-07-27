@@ -3,6 +3,10 @@ Unreleased changes
 
 Version 0
 ---------
+0.14.6 / 2025-07-27
+~~~~~~~~~~~~~~~~~~~
+* Use full domain for session cookie
+
 0.14.5 / 2025-06-21
 ~~~~~~~~~~~~~~~~~~~
 * Non-zero exit for CLI on failure

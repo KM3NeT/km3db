@@ -213,7 +213,7 @@ class DBManager:
 
         log.info("Writing session cookie to %s", COOKIE_FILENAME)
         with open(COOKIE_FILENAME, "w") as fobj:
-            fobj.write(".in2p3.fr\tTRUE\t/\tTRUE\t0\tsid\t{}".format(cookie))
+            fobj.write("km3netdbweb.in2p3.fr\tTRUE\t/\tTRUE\t0\tsid\t{}".format(cookie))
 
         return cookie
 

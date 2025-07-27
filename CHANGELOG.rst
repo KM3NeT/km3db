@@ -3,7 +3,7 @@ Unreleased changes
 
 Version 0
 ---------
-0.14.6 / 2025-07-27
+0.14.7 / 2025-07-27
 ~~~~~~~~~~~~~~~~~~~
 * Use full domain for session cookie
 

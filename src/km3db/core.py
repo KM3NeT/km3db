@@ -23,9 +23,6 @@ from km3db.logger import log
 
 BASE_URL = "https://km3netdbweb.in2p3.fr"
 COOKIE_FILENAME = os.path.expanduser("~/.km3netdb_cookie")
-SESSION_COOKIES = dict(
-    gitlab="_gitlab-km3net_131.188_ce0e106433dd4923b522716b23c992c2",
-)
 UTC_TZ = pytz.timezone("UTC")
 
 _cookie_sid_pattern = re.compile(r"_[a-z0-9-]+_(\d{1,3}.){1,3}\d{1,3}_[a-z0-9]+")
@@ -130,12 +127,7 @@ class DBManager:
     @property
     def session_cookie(self):
         if self._session_cookie is None:
-            for host, session_cookie in SESSION_COOKIES.items():
-                if on_whitelisted_host(host):
-                    self._session_cookie = session_cookie
-                    break
-            else:
-                self._session_cookie = self._request_session_cookie()
+            self._session_cookie = self._request_session_cookie()
         return self._session_cookie
 
     def _request_session_cookie(self):
@@ -240,8 +232,3 @@ class DBManager:
             self._username = self.session_cookie.split("_")[1]
         return self._username
 
-
-def on_whitelisted_host(name):
-    """Check if we are on a whitelisted host"""
-    if name == "gitlab":
-        return "GITLAB_CI" in os.environ

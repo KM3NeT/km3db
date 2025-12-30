@@ -3,6 +3,11 @@ Unreleased changes
 
 Version 0
 ---------
+0.15.0 / 2025-12-30
+~~~~~~~~~~~~~~~~~~~
+* Session cookie for CI removed. The value now has to be set as CI variable
+  named `KM3NET_DB_COOKIE`
+
 0.14.7 / 2025-07-27
 ~~~~~~~~~~~~~~~~~~~
 * Use full domain for session cookie

@@ -55,10 +55,9 @@ low level access to the database::
   >>> db = km3db.DBManager()
 
 It tries to figure out the easiest way to authenticate with the database gateway.
-If launched on the Lyon CC, GitLab CI or the KM3NeT JupyterHub service, it will
-automatically use the corresponding session cookies.
-If not operating on whitelisted hosts, the environment variables ``KM3NET_DB_USERNAME``
-and ``KM3NET_DB_PASSWORD`` will be used. If those are not set, it will look for a
+If launched on the Lyon CC it will automatically use the corresponding session cookie.
+The environment variables ``KM3NET_DB_USERNAME`` and ``KM3NET_DB_PASSWORD`` can
+also be used. If those are not set, km3db will look for a
 cookie in ``~/.km3netdb_cookie``. As a last resort, it will prompt the user to
 enter the username and password manually.
 After a successful authentication, a cookie file with the session cookie will be

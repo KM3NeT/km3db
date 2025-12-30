@@ -232,8 +232,3 @@ class DBManager:
             self._username = self.session_cookie.split("_")[1]
         return self._username
 
-
-def on_whitelisted_host(name):
-    """Check if we are on a whitelisted host"""
-    if name == "gitlab":
-        return "GITLAB_CI" in os.environ

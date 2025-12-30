@@ -3,7 +3,7 @@ import mock
 import tempfile
 
 from km3db import DBManager
-from km3db.core import SESSION_COOKIES, AuthenticationError
+from km3db.core import AuthenticationError
 
 
 class TestKM3DB(unittest.TestCase):

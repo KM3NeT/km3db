@@ -171,7 +171,7 @@ class DBManager:
         """Request a cookie using credentials"""
         username = os.getenv("KM3NET_DB_USERNAME")
         password = os.getenv("KM3NET_DB_PASSWORD")
-        totp = os.getenv("KM3NET_DB_TOTP", "")
+        totp = os.getenv("KM3NET_DB_TOTP") or ""
 
         if username is None or password is None:
             # Last resort: we ask interactively

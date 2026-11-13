@@ -133,6 +133,8 @@ class StreamDS:
     def _update_streams(self):
         """Update the list of available straems"""
         content = self._db.get("streamds")
+        if content is None:
+            raise RuntimeError("Could not retrieve the list of streams from the DB.")
         self._streams = OrderedDict()
         for entry in tonamedtuples("Stream", content):
             self._streams[entry.stream] = entry

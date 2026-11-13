@@ -19,12 +19,10 @@ import time
 import uuid
 import json
 import http.cookiejar
-
-from urllib.parse import unquote
+import sys
 import urllib.request
 
 from km3db.logger import log
-
 
 BASE_URL = "https://km3netdbweb.in2p3.fr"
 COOKIE_FILENAME = os.path.expanduser("~/.km3netdb_cookie")
@@ -177,7 +175,6 @@ class DBManager:
             # Last resort: we ask interactively
             username = input("Please enter your KM3NeT DB username: ")
             password = getpass.getpass("Password: ")
-            totp = input("Please enter the TOTP (leave it empty, if not 2FA TOTP): ")
         else:
             log.info(
                 "Using credentials from env ($KM3NET_DB_USERNAME and "
@@ -192,89 +189,26 @@ class DBManager:
                 suffix = "&freenetbits=8"
             else:
                 log.error("Unsupported network class '{}'".format(self._network_class))
-        
-        target_url = self._login_url + "?" + urlencode({
-                            "usr": username,
-                            "pwd": password,
-                            "totp": totp,
-                            "persist": "y",
-                        }) + suffix
 
-        cookie_jar = http.cookiejar.CookieJar()
+        params = {"usr": username, "pwd": password, "totp": totp, "persist": "y"}
+        target_url = self._login_url + "?" + urlencode(params) + suffix
+
         auth_opener = urllib.request.build_opener(
-            urllib.request.HTTPCookieProcessor(cookie_jar)
+            urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar())
         )
 
         with auth_opener.open(target_url, timeout=30) as response:
-            km3db_reply = response.read()
+            cookie = response.read().strip()
 
-        cookie = None
-        totp_form = re.search(rb'const\s+id\s*=\s*"([^"]+)"', km3db_reply)
-
+        totp_form = re.search(rb'const\s+id\s*=\s*"([^"]+)"', cookie)
         if totp_form:
             request_id = totp_form.group(1).decode("ascii")
-
-            if not totp:
-                totp = input("TOTP: ").strip()
-
-            boundary = uuid.uuid4().hex
-            body = (
-                "--{boundary}\r\n"
-                'Content-Disposition: form-data; name="id"\r\n\r\n'
-                "{request_id}\r\n"
-                "--{boundary}\r\n"
-                'Content-Disposition: form-data; name="co"\r\n\r\n'
-                "{totp}\r\n"
-                "--{boundary}--\r\n"
-            ).format(
-                boundary=boundary,
-                request_id=request_id,
-                totp=totp,
-            ).encode("utf-8")
-
-            request = urllib.request.Request(
-                self._db_url + "/2fa",
-                data=body,
-                headers={
-                "Content-Type": "multipart/form-data; boundary={}".format(boundary)
-                },
-                method="POST",
-            )
-            try:
-                with auth_opener.open(request, timeout=30) as response:
-                    response.read()
-
-                query = urllib.parse.urlencode({"id": request_id})
-
-                for _ in range(60):
-                    with auth_opener.open(
-                        self._db_url + "/2fa?" + query, timeout=10
-                    ) as response:
-                        result = json.loads(response.read())
-
-                    if result["status"] == "Accepted":
-                        break
-                    if result["status"] != "Waiting":
-                        raise AuthenticationError("2FA authentication refused.")
-
-                    time.sleep(1)
-                else:
-                    raise AuthenticationError("2FA authentication timed out.")
-            except HTTPError as e:
-                if e.code == 417:
-                    message = "Invalid TOTP."
-                else:
-                    message = "2FA authentication failed: {}".format(e)
-                log.critical(message)
-                raise AuthenticationError(message) from None
-
+            self._two_factor_auth(auth_opener, request_id, totp)
+            query = urlencode({"id": request_id, "persist": "y"})
             with auth_opener.open(
-                self._login_url + "?" + query + "&persist=y" + suffix,
-                timeout=30,
+                self._login_url + "?" + query + suffix, timeout=30
             ) as response:
                 cookie = response.read().strip()
-        else:
-            cookie = km3db_reply.strip()
 
         # Unicode madness
         try:
@@ -294,6 +228,59 @@ class DBManager:
             fobj.write("km3netdbweb.in2p3.fr\tTRUE\t/\tTRUE\t0\tsid\t{}".format(cookie))
 
         return cookie
+
+    def _two_factor_auth(self, auth_opener, request_id, totp):
+        """Submit the TOTP for a pending login and wait for the DB to accept it"""
+        if not totp:
+            if not sys.stdin.isatty():
+                message = "2FA is required, please set $KM3NET_DB_TOTP."
+                log.critical(message)
+                raise AuthenticationError(message)
+            totp = input("TOTP: ").strip()
+
+        boundary = uuid.uuid4().hex
+        body = (
+            "--{b}\r\n"
+            'Content-Disposition: form-data; name="id"\r\n\r\n'
+            "{id}\r\n"
+            "--{b}\r\n"
+            'Content-Disposition: form-data; name="co"\r\n\r\n'
+            "{totp}\r\n"
+            "--{b}--\r\n"
+        ).format(b=boundary, id=request_id, totp=totp)
+        request = urllib.request.Request(
+            self._db_url + "/2fa",
+            data=body.encode("utf-8"),
+            headers={"Content-Type": "multipart/form-data; boundary=" + boundary},
+            method="POST",
+        )
+        poll_url = self._db_url + "/2fa?" + urlencode({"id": request_id})
+
+        try:
+            with auth_opener.open(request, timeout=30) as response:
+                response.read()
+
+            for _ in range(60):
+                with auth_opener.open(poll_url, timeout=10) as response:
+                    status = json.loads(response.read()).get("status")
+                if status == "Accepted":
+                    return
+                if status != "Waiting":
+                    message = "2FA authentication refused (status: {}).".format(status)
+                    break
+                time.sleep(1)
+            else:
+                message = "2FA authentication timed out."
+        except HTTPError as e:
+            if e.code == 417:
+                message = "Invalid TOTP."
+            else:
+                message = "2FA authentication failed: {}".format(e)
+        except ValueError:
+            message = "Unexpected reply from the DB during 2FA authentication."
+
+        log.critical(message)
+        raise AuthenticationError(message)
 
     @property
     def opener(self):

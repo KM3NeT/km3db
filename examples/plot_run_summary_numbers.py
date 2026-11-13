@@ -188,7 +188,7 @@ mID = 806451572
 fig, axe = plt.subplots(figsize=[8, 4])
 axe.set_yscale("log")
 
-cmap = mpl.cm.get_cmap("viridis")
+cmap = mpl.colormaps["viridis"]
 
 for i in range(31):
     colName = "pmt_{}_mean_rate".format(i)

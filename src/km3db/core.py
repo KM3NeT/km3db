@@ -240,25 +240,33 @@ class DBManager:
                 },
                 method="POST",
             )
-            with auth_opener.open(request, timeout=30) as response:
-                response.read()
+            try:
+                with auth_opener.open(request, timeout=30) as response:
+                    response.read()
 
-            query = urllib.parse.urlencode({"id": request_id})
+                query = urllib.parse.urlencode({"id": request_id})
 
-            for _ in range(60):
-                with auth_opener.open(
-                    self._db_url + "/2fa?" + query, timeout=10
-                ) as response:
-                    result = json.loads(response.read())
+                for _ in range(60):
+                    with auth_opener.open(
+                        self._db_url + "/2fa?" + query, timeout=10
+                    ) as response:
+                        result = json.loads(response.read())
 
-                if result["status"] == "Accepted":
-                    break
-                if result["status"] != "Waiting":
-                    raise AuthenticationError("2FA authentication refused")
+                    if result["status"] == "Accepted":
+                        break
+                    if result["status"] != "Waiting":
+                        raise AuthenticationError("2FA authentication refused.")
 
-                time.sleep(1)
-            else:
-                raise AuthenticationError("2FA authentication timeout")
+                    time.sleep(1)
+                else:
+                    raise AuthenticationError("2FA authentication timed out.")
+            except HTTPError as e:
+                if e.code == 417:
+                    message = "Invalid TOTP."
+                else:
+                    message = "2FA authentication failed: {}".format(e)
+                log.critical(message)
+                raise AuthenticationError(message) from None
 
             with auth_opener.open(
                 self._login_url + "?" + query + "&persist=y" + suffix,

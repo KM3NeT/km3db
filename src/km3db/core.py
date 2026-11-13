@@ -11,10 +11,15 @@ import getpass
 import os
 import re
 from urllib.error import URLError, HTTPError
+from urllib.parse import unquote, urlencode
 from http.client import IncompleteRead, RemoteDisconnected
 import socket
 import pytz
 import time
+import uuid
+import json
+import http.cookiejar
+
 from urllib.parse import unquote
 import urllib.request
 
@@ -166,11 +171,13 @@ class DBManager:
         """Request a cookie using credentials"""
         username = os.getenv("KM3NET_DB_USERNAME")
         password = os.getenv("KM3NET_DB_PASSWORD")
+        totp = os.getenv("KM3NET_DB_TOTP", "")
 
         if username is None or password is None:
             # Last resort: we ask interactively
             username = input("Please enter your KM3NeT DB username: ")
             password = getpass.getpass("Password: ")
+            totp = input("Please enter the TOTP (leave it empty, if not 2FA TOTP): ")
         else:
             log.info(
                 "Using credentials from env ($KM3NET_DB_USERNAME and "
@@ -185,10 +192,81 @@ class DBManager:
                 suffix = "&freenetbits=8"
             else:
                 log.error("Unsupported network class '{}'".format(self._network_class))
-        target_url = self._login_url + "?usr={0}&pwd={1}&persist=y{2}".format(
-            username, password, suffix
+        
+        target_url = self._login_url + "?" + urlencode({
+                            "usr": username,
+                            "pwd": password,
+                            "totp": totp,
+                            "persist": "y",
+                        }) + suffix
+
+        cookie_jar = http.cookiejar.CookieJar()
+        auth_opener = urllib.request.build_opener(
+            urllib.request.HTTPCookieProcessor(cookie_jar)
         )
-        cookie = urllib.request.urlopen(target_url).read()
+
+        with auth_opener.open(target_url, timeout=30) as response:
+            km3db_reply = response.read()
+
+        cookie = None
+        totp_form = re.search(rb'const\s+id\s*=\s*"([^"]+)"', km3db_reply)
+
+        if totp_form:
+            request_id = totp_form.group(1).decode("ascii")
+
+            if not totp:
+                totp = input("TOTP: ").strip()
+
+            boundary = uuid.uuid4().hex
+            body = (
+                "--{boundary}\r\n"
+                'Content-Disposition: form-data; name="id"\r\n\r\n'
+                "{request_id}\r\n"
+                "--{boundary}\r\n"
+                'Content-Disposition: form-data; name="co"\r\n\r\n'
+                "{totp}\r\n"
+                "--{boundary}--\r\n"
+            ).format(
+                boundary=boundary,
+                request_id=request_id,
+                totp=totp,
+            ).encode("utf-8")
+
+            request = urllib.request.Request(
+                self._db_url + "/2fa",
+                data=body,
+                headers={
+                "Content-Type": "multipart/form-data; boundary={}".format(boundary)
+                },
+                method="POST",
+            )
+            with auth_opener.open(request, timeout=30) as response:
+                response.read()
+
+            query = urllib.parse.urlencode({"id": request_id})
+
+            for _ in range(60):
+                with auth_opener.open(
+                    self._db_url + "/2fa?" + query, timeout=10
+                ) as response:
+                    result = json.loads(response.read())
+
+                if result["status"] == "Accepted":
+                    break
+                if result["status"] != "Waiting":
+                    raise AuthenticationError("2FA authentication refused")
+
+                time.sleep(1)
+            else:
+                raise AuthenticationError("2FA authentication timeout")
+
+            with auth_opener.open(
+                self._login_url + "?" + query + "&persist=y" + suffix,
+                timeout=30,
+            ) as response:
+                cookie = response.read().strip()
+        else:
+            cookie = km3db_reply.strip()
 
         # Unicode madness
         try:

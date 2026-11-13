@@ -17,40 +17,38 @@ class TestKM3DB(unittest.TestCase):
             "OID\tSERIALNUMBER\tLOCATIONID\tCITY\tFIRSTRUN\tLASTRUN\nD_DU1CPPM\t2\tA00070004\tMarseille"
         )
 
-    @mock.patch("os.path.exists")
     @mock.patch("os.getenv")
-    @mock.patch("urllib.request.urlopen")
+    @mock.patch("km3db.core.urllib.request.build_opener")
     def test_request_session_cookie_from_env_with_credentials(
-        self, urlopen_mock, getenv_mock, exists_mock
+        self, build_opener_mock, getenv_mock
     ):
-        class StreamMock:
-            def read(self):
-                return b"foo"
+        credentials = {
+            "KM3NET_DB_USERNAME": "username",
+            "KM3NET_DB_PASSWORD": "password",
+            "KM3NET_DB_TOTP": "",
+        }
+        getenv_mock.side_effect = credentials.get
 
-        def getenv_mock_side_effect(key):
-            if key == "KM3NET_DB_USERNAME":
-                return "username"
-            if key == "KM3NET_DB_PASSWORD":
-                return "password"
-            return None
-
-        urlopen_mock.return_value = StreamMock()
-        exists_mock.return_value = False
-        getenv_mock.side_effect = getenv_mock_side_effect
+        open_mock = build_opener_mock.return_value.open
+        response_mock = open_mock.return_value.__enter__.return_value
+        response_mock.read.return_value = b"foo"
 
         db = DBManager()
         with self.assertRaises(AuthenticationError):
-            cookie = db.request_session_cookie()
+            db.request_session_cookie()
 
         getenv_mock.assert_has_calls(
             [
                 mock.call("KM3NET_DB_USERNAME"),
                 mock.call("KM3NET_DB_PASSWORD"),
+                mock.call("KM3NET_DB_TOTP"),
             ]
         )
 
-        urlopen_mock.assert_called_with(
-            "https://km3netdbweb.in2p3.fr/home.htm?usr=username&pwd=password&persist=y"
+        open_mock.assert_called_once_with(
+            "https://km3netdbweb.in2p3.fr/home.htm"
+            "?usr=username&pwd=password&totp=&persist=y",
+            timeout=30,
         )
 
     @mock.patch("os.path.exists")

@@ -17,11 +17,11 @@ import sys
 import os
 from datetime import date
 import sphinx_rtd_theme
-from pkg_resources import get_distribution
+from importlib.metadata import version as get_version
 
 # -- Project information -----------------------------------------------------
 
-version = get_distribution("km3db").version
+version = get_version("km3db")
 short_version = ".".join(version.split(".")[:2])
 project = "km3db {}".format(short_version)
 copyright = "{0}, Tamas Gal".format(date.today().year)

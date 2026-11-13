@@ -51,6 +51,36 @@ class TestKM3DB(unittest.TestCase):
             timeout=30,
         )
 
+    @mock.patch("os.getenv")
+    @mock.patch("km3db.core.urllib.request.build_opener")
+    def test_request_session_cookie_with_invalid_totp(
+        self, build_opener_mock, getenv_mock
+    ):
+        from urllib.error import HTTPError
+
+        credentials = {
+            "KM3NET_DB_USERNAME": "username",
+            "KM3NET_DB_PASSWORD": "password",
+            "KM3NET_DB_TOTP": "123456",
+        }
+        getenv_mock.side_effect = credentials.get
+
+        login_response = mock.MagicMock()
+        login_response.__enter__.return_value.read.return_value = (
+            b'<script>const id = "abc123";</script>'
+        )
+        open_mock = build_opener_mock.return_value.open
+        open_mock.side_effect = [
+            login_response,
+            HTTPError(
+                "https://km3netdbweb.in2p3.fr/2fa", 417, "Expectation Failed", {}, None
+            ),
+        ]
+
+        db = DBManager()
+        with self.assertRaisesRegex(AuthenticationError, "Invalid TOTP"):
+            db.request_session_cookie()
+
     @mock.patch("os.path.exists")
     @mock.patch("os.getenv")
     def test_request_session_cookie_from_env_with_cookie(

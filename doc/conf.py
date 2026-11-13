@@ -16,7 +16,6 @@
 import sys
 import os
 from datetime import date
-import sphinx_rtd_theme
 from importlib.metadata import version as get_version
 
 # -- Project information -----------------------------------------------------
@@ -70,7 +69,6 @@ sphinx_gallery_conf = {
 # a list of builtin themes.
 #
 html_theme = "sphinx_rtd_theme"
-html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,

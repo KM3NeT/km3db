@@ -54,7 +54,6 @@ dev = [
   "sphinx-autoapi",
   "sphinx-gallery>=0.1.12",
   "sphinx_rtd_theme",
-  "sphinxcontrib-versioning",
   "wheel"
 ]
 extras = [
